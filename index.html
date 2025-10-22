@@ -361,8 +361,9 @@
                 <div class="section-header">
                     <h2>통계 및 리포트</h2>
                     <div class="export-controls">
-                        <button class="btn btn-secondary" id="export-csv-btn">CSV 내보내기</button>
-                        <button class="btn btn-secondary" id="export-json-btn">JSON 내보내기</button>
+                        <button class="btn btn-primary" id="backup-data-btn">전체 데이터 백업</button>
+                        <button class="btn btn-success" id="restore-data-btn">데이터 복원</button>
+                        <button class="btn btn-danger" id="clear-data-btn">데이터 초기화</button>
                     </div>
                 </div>
                 
@@ -464,6 +465,89 @@
                 </div>
             </div>
         </main>
+    </div>
+
+    <!-- 데이터 백업/복원 모달 -->
+    <div id="backup-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>데이터 백업</h3>
+                <button class="close" id="close-backup-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>현재 저장된 모든 데이터를 JSON 파일로 다운로드합니다.</p>
+                <div class="backup-info">
+                    <h4>백업 내용:</h4>
+                    <ul>
+                        <li>교사 정보 (이름, 유형, 학년/반, 과목 등)</li>
+                        <li>교과전담교사 스케줄</li>
+                        <li>보결 기록</li>
+                        <li>시간대 설정</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" id="download-backup-btn">백업 다운로드</button>
+                <button class="btn btn-secondary" id="cancel-backup-btn">취소</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 데이터 복원 모달 -->
+    <div id="restore-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>데이터 복원</h3>
+                <button class="close" id="close-restore-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p><strong>주의:</strong> 데이터를 복원하면 현재 저장된 모든 데이터가 덮어쓰여집니다.</p>
+                <div class="form-group">
+                    <label for="backup-file-input">백업 파일 선택</label>
+                    <input type="file" id="backup-file-input" accept=".json" />
+                </div>
+                <div id="restore-preview" class="restore-preview" style="display: none;">
+                    <h4>복원할 데이터 미리보기:</h4>
+                    <div id="restore-preview-content"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" id="confirm-restore-btn" disabled>데이터 복원</button>
+                <button class="btn btn-secondary" id="cancel-restore-btn">취소</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 데이터 초기화 모달 -->
+    <div id="clear-data-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>데이터 초기화</h3>
+                <button class="close" id="close-clear-data-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="warning-box">
+                    <h4>⚠️ 경고</h4>
+                    <p><strong>모든 데이터가 영구적으로 삭제됩니다!</strong></p>
+                    <p>다음 데이터들이 모두 삭제됩니다:</p>
+                    <ul>
+                        <li>모든 교사 정보</li>
+                        <li>교과전담교사 스케줄</li>
+                        <li>모든 보결 기록</li>
+                        <li>시간대 설정</li>
+                    </ul>
+                    <p><strong>이 작업은 되돌릴 수 없습니다.</strong> 데이터를 백업하지 않았다면 먼저 백업을 진행하세요.</p>
+                </div>
+                <div class="form-group">
+                    <label for="confirm-clear-text">확인을 위해 "초기화"를 입력하세요</label>
+                    <input type="text" id="confirm-clear-text" placeholder="초기화" />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" id="confirm-clear-btn" disabled>데이터 초기화</button>
+                <button class="btn btn-secondary" id="cancel-clear-btn">취소</button>
+            </div>
+        </div>
     </div>
 
     <!-- 스크립트 -->

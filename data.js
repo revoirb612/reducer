@@ -273,8 +273,39 @@ class DataManager {
         return {
             teachers: this.teachers,
             substituteRecords: this.substituteRecords,
-            exportedAt: new Date().toISOString()
+            timeSlots: this.getTimeSlots(),
+            exportedAt: new Date().toISOString(),
+            version: '1.0'
         };
+    }
+
+    // 전체 데이터 백업 (파일 다운로드용)
+    exportAllData() {
+        const allData = {
+            teachers: this.teachers,
+            substituteRecords: this.substituteRecords,
+            timeSlots: this.getTimeSlots(),
+            exportedAt: new Date().toISOString(),
+            version: '1.0',
+            appName: '교사 보결 지정 시스템'
+        };
+        
+        const dataStr = JSON.stringify(allData, null, 2);
+        const dataBlob = new Blob([dataStr], { type: 'application/json' });
+        
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+        const filename = `교사보결시스템_백업_${timestamp}.json`;
+        
+        const url = URL.createObjectURL(dataBlob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        
+        return filename;
     }
 
     // 데이터 가져오기
@@ -287,6 +318,101 @@ class DataManager {
             this.substituteRecords = data.substituteRecords;
             this.saveSubstituteRecords();
         }
+    }
+
+    // 백업 파일에서 데이터 복원
+    restoreFromBackup(backupData) {
+        try {
+            // 백업 파일 유효성 검사
+            if (!this.validateBackupData(backupData)) {
+                throw new Error('유효하지 않은 백업 파일입니다.');
+            }
+
+            // 데이터 복원
+            if (backupData.teachers) {
+                this.teachers = backupData.teachers;
+                this.saveTeachers();
+            }
+            
+            if (backupData.substituteRecords) {
+                this.substituteRecords = backupData.substituteRecords;
+                this.saveSubstituteRecords();
+            }
+            
+            if (backupData.timeSlots) {
+                localStorage.setItem('timeSlots', JSON.stringify(backupData.timeSlots));
+            }
+
+            return {
+                success: true,
+                message: '데이터가 성공적으로 복원되었습니다.',
+                restoredData: {
+                    teachers: backupData.teachers?.length || 0,
+                    substituteRecords: backupData.substituteRecords?.length || 0,
+                    timeSlots: backupData.timeSlots?.length || 0
+                }
+            };
+        } catch (error) {
+            return {
+                success: false,
+                message: error.message || '데이터 복원 중 오류가 발생했습니다.'
+            };
+        }
+    }
+
+    // 백업 데이터 유효성 검사
+    validateBackupData(data) {
+        // 기본 구조 검사
+        if (!data || typeof data !== 'object') {
+            return false;
+        }
+
+        // 앱 이름 검사
+        if (data.appName !== '교사 보결 지정 시스템') {
+            return false;
+        }
+
+        // 버전 검사
+        if (!data.version) {
+            return false;
+        }
+
+        // 데이터 타입 검사
+        if (data.teachers && !Array.isArray(data.teachers)) {
+            return false;
+        }
+
+        if (data.substituteRecords && !Array.isArray(data.substituteRecords)) {
+            return false;
+        }
+
+        if (data.timeSlots && !Array.isArray(data.timeSlots)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    // 백업 데이터 미리보기 생성
+    generateBackupPreview(backupData) {
+        if (!this.validateBackupData(backupData)) {
+            return {
+                valid: false,
+                message: '유효하지 않은 백업 파일입니다.'
+            };
+        }
+
+        const preview = {
+            valid: true,
+            appName: backupData.appName || '알 수 없음',
+            version: backupData.version || '알 수 없음',
+            exportedAt: backupData.exportedAt || '알 수 없음',
+            teachers: backupData.teachers?.length || 0,
+            substituteRecords: backupData.substituteRecords?.length || 0,
+            timeSlots: backupData.timeSlots?.length || 0
+        };
+
+        return preview;
     }
 
     // 교사 일괄 추가

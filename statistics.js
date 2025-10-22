@@ -57,14 +57,7 @@ class StatisticsManager {
             this.loadTeacherStats();
         });
 
-        // 데이터 내보내기
-        document.getElementById('export-csv-btn').addEventListener('click', () => {
-            this.exportToCSV();
-        });
-
-        document.getElementById('export-json-btn').addEventListener('click', () => {
-            this.exportToJSON();
-        });
+        // 데이터 내보내기 기능은 제거됨 (백업/복원 기능으로 대체)
     }
 
     setupDateInputs() {
@@ -809,41 +802,7 @@ class StatisticsManager {
         document.getElementById('busy-days').innerHTML = busyDaysHTML;
     }
 
-    exportToCSV() {
-        const teachers = dataManager.getAllTeachers();
-        const records = dataManager.getSubstituteRecords();
-        
-        // 교사 데이터 CSV
-        const teacherHeaders = ['이름', '유형', '학년', '반', '과목', '총보결', '이번달보결', '지난달보결'];
-        const teacherData = teachers.map(teacher => [
-            teacher.name,
-            teacher.type,
-            teacher.grade,
-            teacher.class || '',
-            teacher.subject || '',
-            teacher.substituteHistory.totalCount,
-            teacher.substituteHistory.thisMonth,
-            teacher.substituteHistory.lastMonth
-        ]);
-        
-        Utils.downloadCSV(teacherData, teacherHeaders, 'teachers.csv');
-        Utils.showNotification('교사 데이터가 CSV로 내보내졌습니다.', 'success');
-    }
-
-    exportToJSON() {
-        const data = dataManager.exportData();
-        const jsonString = JSON.stringify(data, null, 2);
-        const blob = new Blob([jsonString], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = 'substitute-data.json';
-        link.click();
-        
-        URL.revokeObjectURL(url);
-        Utils.showNotification('데이터가 JSON으로 내보내졌습니다.', 'success');
-    }
+    // 데이터 내보내기 메서드들은 제거됨 (백업/복원 기능으로 대체)
 
     showAddRecordForm() {
         // 보결 기록 추가 폼 표시 (추후 구현)

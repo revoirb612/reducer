@@ -73,6 +73,67 @@ class App {
         document.getElementById('save-bulk-teachers-btn').addEventListener('click', () => {
             this.saveBulkTeachers();
         });
+
+        // 데이터 백업 버튼
+        document.getElementById('backup-data-btn').addEventListener('click', () => {
+            this.showBackupModal();
+        });
+
+        // 데이터 복원 버튼
+        document.getElementById('restore-data-btn').addEventListener('click', () => {
+            this.showRestoreModal();
+        });
+
+        // 백업 모달 이벤트
+        document.getElementById('close-backup-modal').addEventListener('click', () => {
+            this.hideBackupModal();
+        });
+
+        document.getElementById('cancel-backup-btn').addEventListener('click', () => {
+            this.hideBackupModal();
+        });
+
+        document.getElementById('download-backup-btn').addEventListener('click', () => {
+            this.downloadBackup();
+        });
+
+        // 복원 모달 이벤트
+        document.getElementById('close-restore-modal').addEventListener('click', () => {
+            this.hideRestoreModal();
+        });
+
+        document.getElementById('cancel-restore-btn').addEventListener('click', () => {
+            this.hideRestoreModal();
+        });
+
+        document.getElementById('backup-file-input').addEventListener('change', (e) => {
+            this.handleBackupFileSelect(e);
+        });
+
+        document.getElementById('confirm-restore-btn').addEventListener('click', () => {
+            this.confirmRestore();
+        });
+
+        // 데이터 초기화 이벤트
+        document.getElementById('clear-data-btn').addEventListener('click', () => {
+            this.showClearDataModal();
+        });
+
+        document.getElementById('close-clear-data-modal').addEventListener('click', () => {
+            this.hideClearDataModal();
+        });
+
+        document.getElementById('cancel-clear-btn').addEventListener('click', () => {
+            this.hideClearDataModal();
+        });
+
+        document.getElementById('confirm-clear-text').addEventListener('input', (e) => {
+            this.handleClearConfirmInput(e);
+        });
+
+        document.getElementById('confirm-clear-btn').addEventListener('click', () => {
+            this.confirmClearData();
+        });
     }
 
     switchTab(tab) {
@@ -536,6 +597,193 @@ class App {
         } catch (error) {
             console.error('Error saving bulk teachers:', error);
             Utils.showNotification('교사 일괄 추가 중 오류가 발생했습니다.', 'error');
+        }
+    }
+
+    // 데이터 백업 관련 메서드들
+    showBackupModal() {
+        document.getElementById('backup-modal').style.display = 'block';
+    }
+
+    hideBackupModal() {
+        document.getElementById('backup-modal').style.display = 'none';
+    }
+
+    downloadBackup() {
+        try {
+            const filename = dataManager.exportAllData();
+            Utils.showNotification(`백업 파일이 다운로드되었습니다: ${filename}`, 'success');
+            this.hideBackupModal();
+        } catch (error) {
+            console.error('Error downloading backup:', error);
+            Utils.showNotification('백업 파일 다운로드 중 오류가 발생했습니다.', 'error');
+        }
+    }
+
+    showRestoreModal() {
+        document.getElementById('restore-modal').style.display = 'block';
+        document.getElementById('backup-file-input').value = '';
+        document.getElementById('restore-preview').style.display = 'none';
+        document.getElementById('confirm-restore-btn').disabled = true;
+    }
+
+    hideRestoreModal() {
+        document.getElementById('restore-modal').style.display = 'none';
+        document.getElementById('backup-file-input').value = '';
+        document.getElementById('restore-preview').style.display = 'none';
+        document.getElementById('confirm-restore-btn').disabled = true;
+    }
+
+    handleBackupFileSelect(event) {
+        const file = event.target.files[0];
+        if (!file) {
+            document.getElementById('restore-preview').style.display = 'none';
+            document.getElementById('confirm-restore-btn').disabled = true;
+            return;
+        }
+
+        if (file.type !== 'application/json' && !file.name.endsWith('.json')) {
+            Utils.showNotification('JSON 파일을 선택해주세요.', 'error');
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const backupData = JSON.parse(e.target.result);
+                const preview = dataManager.generateBackupPreview(backupData);
+                
+                if (preview.valid) {
+                    this.showRestorePreview(preview);
+                    this.currentBackupData = backupData;
+                    document.getElementById('confirm-restore-btn').disabled = false;
+                } else {
+                    Utils.showNotification(preview.message, 'error');
+                    document.getElementById('restore-preview').style.display = 'none';
+                    document.getElementById('confirm-restore-btn').disabled = true;
+                }
+            } catch (error) {
+                Utils.showNotification('파일을 읽는 중 오류가 발생했습니다.', 'error');
+                document.getElementById('restore-preview').style.display = 'none';
+                document.getElementById('confirm-restore-btn').disabled = true;
+            }
+        };
+        reader.readAsText(file);
+    }
+
+    showRestorePreview(preview) {
+        const previewContent = document.getElementById('restore-preview-content');
+        const previewDiv = document.getElementById('restore-preview');
+        
+        previewContent.innerHTML = `
+            <div class="restore-preview-info">
+                <div class="preview-item">
+                    <strong>앱 이름:</strong> ${preview.appName}
+                </div>
+                <div class="preview-item">
+                    <strong>버전:</strong> ${preview.version}
+                </div>
+                <div class="preview-item">
+                    <strong>백업 일시:</strong> ${Utils.formatDate(preview.exportedAt)}
+                </div>
+                <div class="preview-item">
+                    <strong>교사 수:</strong> ${preview.teachers}명
+                </div>
+                <div class="preview-item">
+                    <strong>보결 기록:</strong> ${preview.substituteRecords}건
+                </div>
+                <div class="preview-item">
+                    <strong>시간대 설정:</strong> ${preview.timeSlots}개
+                </div>
+            </div>
+        `;
+        
+        previewDiv.style.display = 'block';
+    }
+
+    async confirmRestore() {
+        if (!this.currentBackupData) {
+            Utils.showNotification('복원할 데이터가 없습니다.', 'error');
+            return;
+        }
+
+        const confirmed = await Utils.confirm(
+            '현재 저장된 모든 데이터가 덮어쓰여집니다. 정말로 복원하시겠습니까?'
+        );
+        
+        if (confirmed) {
+            try {
+                const result = dataManager.restoreFromBackup(this.currentBackupData);
+                
+                if (result.success) {
+                    Utils.showNotification(result.message, 'success');
+                    this.hideRestoreModal();
+                    
+                    // UI 새로고침
+                    this.loadTeachers();
+                    if (statisticsManager) {
+                        statisticsManager.loadStatistics();
+                    }
+                    if (specialistScheduleManager) {
+                        specialistScheduleManager.loadSpecialists();
+                    }
+                } else {
+                    Utils.showNotification(result.message, 'error');
+                }
+            } catch (error) {
+                console.error('Error restoring backup:', error);
+                Utils.showNotification('데이터 복원 중 오류가 발생했습니다.', 'error');
+            }
+        }
+    }
+
+    // 데이터 초기화 관련 메서드들
+    showClearDataModal() {
+        document.getElementById('clear-data-modal').style.display = 'block';
+        document.getElementById('confirm-clear-text').value = '';
+        document.getElementById('confirm-clear-btn').disabled = true;
+    }
+
+    hideClearDataModal() {
+        document.getElementById('clear-data-modal').style.display = 'none';
+        document.getElementById('confirm-clear-text').value = '';
+        document.getElementById('confirm-clear-btn').disabled = true;
+    }
+
+    handleClearConfirmInput(event) {
+        const confirmText = event.target.value;
+        const confirmBtn = document.getElementById('confirm-clear-btn');
+        
+        if (confirmText === '초기화') {
+            confirmBtn.disabled = false;
+        } else {
+            confirmBtn.disabled = true;
+        }
+    }
+
+    async confirmClearData() {
+        const confirmed = await Utils.confirm(
+            '정말로 모든 데이터를 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없습니다!'
+        );
+        
+        if (confirmed) {
+            try {
+                dataManager.clearAllData();
+                Utils.showNotification('모든 데이터가 초기화되었습니다.', 'success');
+                this.hideClearDataModal();
+                
+                // UI 새로고침
+                this.loadTeachers();
+                if (statisticsManager) {
+                    statisticsManager.loadStatistics();
+                }
+                if (specialistScheduleManager) {
+                    specialistScheduleManager.loadSpecialists();
+                }
+            } catch (error) {
+                console.error('Error clearing data:', error);
+                Utils.showNotification('데이터 초기화 중 오류가 발생했습니다.', 'error');
+            }
         }
     }
 }
