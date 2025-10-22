@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>교사 보결 지정 시스템</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="stylesheet" href="components.css">
+    <link rel="manifest" href="manifest.json">
+</head>
+<body>
+    <div class="container">
+        <!-- 헤더 -->
+        <header class="header">
+            <h1>교사 보결 지정 시스템</h1>
+            <nav class="nav">
+                <button class="nav-btn active" data-tab="teachers">교사 관리</button>
+                <button class="nav-btn" data-tab="schedule">스케줄 관리</button>
+                <button class="nav-btn" data-tab="substitute">보결 검색</button>
+                <button class="nav-btn" data-tab="statistics">통계</button>
+            </nav>
+        </header>
+
+        <!-- 메인 컨텐츠 -->
+        <main class="main-content">
+            <!-- 교사 관리 탭 -->
+            <div id="teachers" class="tab-content active">
+                <div class="section-header">
+                    <h2>교사 정보 관리</h2>
+                    <button class="btn btn-primary" id="add-teacher-btn">교사 추가</button>
+                </div>
+                
+                <!-- 교사 추가 폼 -->
+                <div id="teacher-form" class="form-container" style="display: none;">
+                    <h3>교사 정보 입력</h3>
+                    <form id="teacher-form-element">
+                        <div class="form-group">
+                            <label for="teacher-name">교사명</label>
+                            <input type="text" id="teacher-name" name="name" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="teacher-type">교사 유형</label>
+                            <select id="teacher-type" name="type" required>
+                                <option value="">선택하세요</option>
+                                <option value="담임교사">담임교사</option>
+                                <option value="교과전담교사">교과전담교사</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group" id="grade-group">
+                            <label for="teacher-grade">학년</label>
+                            <select id="teacher-grade" name="grade" required>
+                                <option value="">선택하세요</option>
+                                <option value="1학년">1학년</option>
+                                <option value="2학년">2학년</option>
+                                <option value="3학년">3학년</option>
+                                <option value="4학년">4학년</option>
+                                <option value="5학년">5학년</option>
+                                <option value="6학년">6학년</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group" id="class-group" style="display: none;">
+                            <label for="teacher-class">반</label>
+                            <select id="teacher-class" name="class">
+                                <option value="">선택하세요</option>
+                                <option value="1반">1반</option>
+                                <option value="2반">2반</option>
+                                <option value="3반">3반</option>
+                                <option value="4반">4반</option>
+                                <option value="5반">5반</option>
+                                <option value="6반">6반</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group" id="subject-group" style="display: none;">
+                            <label for="teacher-subject">담당 과목</label>
+                            <select id="teacher-subject" name="subject">
+                                <option value="">선택하세요</option>
+                                <option value="체육">체육</option>
+                                <option value="음악">음악</option>
+                                <option value="영어">영어</option>
+                                <option value="과학">과학</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">저장</button>
+                            <button type="button" class="btn btn-secondary" id="cancel-teacher-btn">취소</button>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- 교사 목록 -->
+                <div class="teachers-list">
+                    <h3>교사 목록</h3>
+                    <div class="search-bar">
+                        <input type="text" id="teacher-search" placeholder="교사명으로 검색...">
+                    </div>
+                    <div id="teachers-table" class="table-container">
+                        <!-- 교사 목록이 여기에 동적으로 생성됩니다 -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- 스케줄 관리 탭 -->
+            <div id="schedule" class="tab-content">
+                <div class="section-header">
+                    <h2>스케줄 관리</h2>
+                    <div class="schedule-controls">
+                        <div class="schedule-tabs">
+                            <button class="schedule-tab-btn active" data-schedule-type="specialist">교과전담교사</button>
+                            <button class="schedule-tab-btn" data-schedule-type="class">담임교사</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 교과전담교사 스케줄 관리 -->
+                <div id="specialist-schedule" class="schedule-type-content active">
+                    <div class="specialist-controls">
+                        <select id="specialist-select">
+                            <option value="">교과전담교사를 선택하세요</option>
+                        </select>
+                        <button class="btn btn-primary" id="edit-specialist-schedule-btn" disabled>스케줄 수정</button>
+                        <button class="btn btn-secondary" id="edit-time-slots-btn">시간대 설정</button>
+                    </div>
+                    
+                    <!-- 시간대 설정 모달 -->
+                    <div id="time-slots-modal" class="modal" style="display: none;">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h3>수업 시간대 설정</h3>
+                                <button class="close" id="close-time-slots-modal">&times;</button>
+                            </div>
+                            <div class="modal-body">
+                                <p>학교의 실제 수업 시간대를 설정하세요. 각 시간대는 "시작시간-종료시간" 형식으로 입력하세요.</p>
+                                <div id="time-slots-container">
+                                    <!-- 시간대 입력 필드들이 여기에 동적으로 생성됩니다 -->
+                                </div>
+                                <div class="time-slots-actions">
+                                    <button class="btn btn-secondary" id="add-time-slot-btn">시간대 추가</button>
+                                    <button class="btn btn-danger" id="remove-time-slot-btn">시간대 삭제</button>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button class="btn btn-primary" id="save-time-slots-btn">저장</button>
+                                <button class="btn btn-secondary" id="cancel-time-slots-btn">취소</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 교과전담교사 정보 -->
+                    <div id="specialist-info" class="specialist-info-card" style="display: none;">
+                        <div class="specialist-info-header">
+                            <h3 id="selected-specialist-name"></h3>
+                            <span id="selected-specialist-subject" class="subject-badge"></span>
+                        </div>
+                        <div class="specialist-info-details">
+                            <p>교과전담교사의 수업시간을 입력하면 담임교사의 보결 가능 시간이 자동으로 계산됩니다.</p>
+                        </div>
+                    </div>
+                    
+                    <!-- 교과전담교사 스케줄 편집 폼 -->
+                    <div id="specialist-schedule-form" class="schedule-form-container" style="display: none;">
+                        <h3>교과전담교사 시간표 편집</h3>
+                        <div class="schedule-form">
+                            <div class="schedule-grid">
+                                <div class="schedule-header">
+                                    <div class="time-header">시간</div>
+                                    <div class="day-header">월</div>
+                                    <div class="day-header">화</div>
+                                    <div class="day-header">수</div>
+                                    <div class="day-header">목</div>
+                                    <div class="day-header">금</div>
+                                </div>
+                                <div class="schedule-body" id="specialist-schedule-grid-body">
+                                    <!-- 교과전담교사 시간표 그리드가 여기에 동적으로 생성됩니다 -->
+                                </div>
+                            </div>
+                            <div class="schedule-legend">
+                                <h4>범례</h4>
+                                <div class="legend-items">
+                                    <div class="legend-item">
+                                        <span class="legend-color teaching"></span>
+                                        <span>전담수업 (학급 입력)</span>
+                                    </div>
+                                    <div class="legend-item">
+                                        <span class="legend-color available"></span>
+                                        <span>보결 가능</span>
+                                    </div>
+                                    <div class="legend-item">
+                                        <span class="legend-color unavailable"></span>
+                                        <span>보결 불가</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="schedule-actions">
+                                <button class="btn btn-primary" id="save-specialist-schedule-btn">저장</button>
+                                <button class="btn btn-secondary" id="cancel-specialist-schedule-btn">취소</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 담임교사 스케줄 관리 (기존) -->
+                <div id="class-schedule" class="schedule-type-content">
+                    <div class="schedule-controls">
+                        <select id="schedule-teacher-select">
+                            <option value="">교사를 선택하세요</option>
+                        </select>
+                        <button class="btn btn-primary" id="edit-schedule-btn" disabled>스케줄 수정</button>
+                    </div>
+                    
+                    <!-- 교사 선택 안내 -->
+                    <div id="schedule-teacher-info" class="teacher-info-card" style="display: none;">
+                        <div class="teacher-info-header">
+                            <h3 id="selected-teacher-name"></h3>
+                            <span id="selected-teacher-type" class="teacher-type-badge"></span>
+                        </div>
+                        <div class="teacher-info-details">
+                            <div class="info-item">
+                                <span class="info-label">학년/반:</span>
+                                <span id="selected-teacher-grade-class"></span>
+                            </div>
+                            <div class="info-item" id="selected-teacher-subject-item" style="display: none;">
+                                <span class="info-label">담당 과목:</span>
+                                <span id="selected-teacher-subject"></span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 스케줄 편집 폼 -->
+                    <div id="schedule-edit-form" class="schedule-form-container" style="display: none;">
+                        <h3>시간표 편집</h3>
+                        <div class="schedule-form">
+                            <div class="schedule-grid">
+                                <div class="schedule-header">
+                                    <div class="time-header">시간</div>
+                                    <div class="day-header">월</div>
+                                    <div class="day-header">화</div>
+                                    <div class="day-header">수</div>
+                                    <div class="day-header">목</div>
+                                    <div class="day-header">금</div>
+                                </div>
+                                <div class="schedule-body" id="schedule-grid-body">
+                                    <!-- 시간표 그리드가 여기에 동적으로 생성됩니다 -->
+                                </div>
+                            </div>
+                            <div class="schedule-legend">
+                                <h4>범례</h4>
+                                <div class="legend-items">
+                                    <div class="legend-item">
+                                        <span class="legend-color available"></span>
+                                        <span>보결 가능</span>
+                                    </div>
+                                    <div class="legend-item">
+                                        <span class="legend-color teaching"></span>
+                                        <span>수업 중</span>
+                                    </div>
+                                    <div class="legend-item">
+                                        <span class="legend-color unavailable"></span>
+                                        <span>보결 불가</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="schedule-actions">
+                                <button class="btn btn-primary" id="save-schedule-btn">저장</button>
+                                <button class="btn btn-secondary" id="cancel-schedule-btn">취소</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 캘린더 뷰 -->
+                    <div id="schedule-calendar" class="calendar-container">
+                        <div class="calendar-header">
+                            <button class="btn btn-sm" id="prev-month-btn">◀</button>
+                            <h3 id="calendar-month-year"></h3>
+                            <button class="btn btn-sm" id="next-month-btn">▶</button>
+                        </div>
+                        <div class="calendar-grid" id="calendar-grid">
+                            <!-- 캘린더가 여기에 동적으로 생성됩니다 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 보결 검색 탭 -->
+            <div id="substitute" class="tab-content">
+                <div class="section-header">
+                    <h2>보결 검색</h2>
+                </div>
+                
+                <!-- 보결 요청 입력 -->
+                <div class="substitute-request-form">
+                    <h3>보결 요청 정보</h3>
+                    <form id="substitute-request-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="request-date">날짜</label>
+                                <input type="date" id="request-date" name="date" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="request-time">시간</label>
+                                <select id="request-time" name="time" required>
+                                    <option value="">시간 선택</option>
+                                    <!-- 시간대 옵션들이 여기에 동적으로 생성됩니다 -->
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="request-grade">학년</label>
+                                <select id="request-grade" name="grade" required>
+                                    <option value="">학년 선택</option>
+                                    <option value="1학년">1학년</option>
+                                    <option value="2학년">2학년</option>
+                                    <option value="3학년">3학년</option>
+                                    <option value="4학년">4학년</option>
+                                    <option value="5학년">5학년</option>
+                                    <option value="6학년">6학년</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="request-class">반</label>
+                                <select id="request-class" name="class" required>
+                                    <option value="">반 선택</option>
+                                    <option value="1반">1반</option>
+                                    <option value="2반">2반</option>
+                                    <option value="3반">3반</option>
+                                    <option value="4반">4반</option>
+                                    <option value="5반">5반</option>
+                                    <option value="6반">6반</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">보결 가능 교사 검색</button>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- 보결 가능 교사 목록 -->
+                <div id="available-teachers" class="available-teachers-container" style="display: none;">
+                    <h3>보결 가능 교사 목록</h3>
+                    <div class="teachers-list-header">
+                        <div class="search-info">
+                            <span id="search-criteria"></span>
+                        </div>
+                        <div class="sort-controls">
+                            <label for="sort-by">정렬:</label>
+                            <select id="sort-by">
+                                <option value="name">이름순</option>
+                                <option value="substitute-count">보결횟수순</option>
+                                <option value="this-month">이번달 보결순</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="available-teachers-list" class="teachers-list">
+                        <!-- 보결 가능 교사 목록이 여기에 표시됩니다 -->
+                    </div>
+                </div>
+                
+                <!-- 보결 기록 -->
+                <div class="substitute-records">
+                    <h3>보결 기록</h3>
+                    <div class="records-controls">
+                        <div class="filter-controls">
+                            <select id="record-teacher-filter">
+                                <option value="">모든 교사</option>
+                            </select>
+                            <select id="record-month-filter">
+                                <option value="">모든 월</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-secondary" id="add-substitute-record-btn">보결 기록 추가</button>
+                    </div>
+                    <div id="substitute-records-list" class="records-list">
+                        <!-- 보결 기록 목록이 여기에 표시됩니다 -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- 통계 탭 -->
+            <div id="statistics" class="tab-content">
+                <div class="section-header">
+                    <h2>통계 및 리포트</h2>
+                    <div class="export-controls">
+                        <button class="btn btn-secondary" id="export-csv-btn">CSV 내보내기</button>
+                        <button class="btn btn-secondary" id="export-json-btn">JSON 내보내기</button>
+                    </div>
+                </div>
+                
+                <!-- 전체 통계 카드 -->
+                <div class="stats-overview">
+                    <div class="stats-grid">
+                        <div class="stats-card">
+                            <div class="stats-card-header">
+                                <span class="stats-card-title">전체 교사</span>
+                            </div>
+                            <div class="stats-card-value" id="total-teachers">0</div>
+                            <div class="stats-card-change">
+                                <span id="teachers-breakdown"></span>
+                            </div>
+                        </div>
+                        <div class="stats-card">
+                            <div class="stats-card-header">
+                                <span class="stats-card-title">이번 달 보결</span>
+                            </div>
+                            <div class="stats-card-value" id="this-month-substitutes">0</div>
+                            <div class="stats-card-change">
+                                <span id="monthly-change"></span>
+                            </div>
+                        </div>
+                        <div class="stats-card">
+                            <div class="stats-card-header">
+                                <span class="stats-card-title">총 보결 횟수</span>
+                            </div>
+                            <div class="stats-card-value" id="total-substitutes">0</div>
+                            <div class="stats-card-change">
+                                <span id="substitute-trend"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 교사별 보결 통계 -->
+                <div class="teacher-stats-section">
+                    <h3>교사별 보결 참여 통계</h3>
+                    <div class="stats-controls">
+                        <div class="filter-controls">
+                            <select id="stats-teacher-filter">
+                                <option value="">모든 교사</option>
+                            </select>
+                            <select id="stats-period-filter">
+                                <option value="all">전체 기간</option>
+                                <option value="this-month">이번 달</option>
+                                <option value="last-month">지난 달</option>
+                                <option value="this-year">올해</option>
+                            </select>
+                        </div>
+                        <div class="sort-controls">
+                            <label for="stats-sort">정렬:</label>
+                            <select id="stats-sort">
+                                <option value="substitute-count">보결 횟수순</option>
+                                <option value="name">이름순</option>
+                                <option value="this-month">이번 달 보결순</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="teacher-stats-list" class="teacher-stats-list">
+                        <!-- 교사별 통계가 여기에 표시됩니다 -->
+                    </div>
+                </div>
+                
+                <!-- 월별 보결 현황 -->
+                <div class="monthly-stats-section">
+                    <h3>월별 보결 현황</h3>
+                    <div class="monthly-chart-container">
+                        <div id="monthly-chart" class="monthly-chart">
+                            <!-- 월별 차트가 여기에 표시됩니다 -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 보결 패턴 분석 -->
+                <div class="pattern-analysis-section">
+                    <h3>보결 패턴 분석</h3>
+                    <div class="pattern-grid">
+                        <div class="pattern-card">
+                            <h4>가장 많이 보결한 교사</h4>
+                            <div id="top-substitute-teachers" class="pattern-list">
+                                <!-- 상위 보결 교사 목록 -->
+                            </div>
+                        </div>
+                        <div class="pattern-card">
+                            <h4>보결이 많은 시간대</h4>
+                            <div id="busy-time-slots" class="pattern-list">
+                                <!-- 보결이 많은 시간대 목록 -->
+                            </div>
+                        </div>
+                        <div class="pattern-card">
+                            <h4>보결이 많은 요일</h4>
+                            <div id="busy-days" class="pattern-list">
+                                <!-- 보결이 많은 요일 목록 -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 스크립트 -->
+    <script src="data.js"></script>
+    <script src="utils.js"></script>
+    <script src="time-slots-manager.js"></script>
+    <script src="schedule.js"></script>
+    <script src="specialist-schedule.js"></script>
+    <script src="statistics.js"></script>
+    <script src="main.js"></script>
+</body>
+</html>

@@ -1,0 +1,1508 @@
+/* 컴포넌트별 스타일 */
+
+/* 교사 카드 */
+.teacher-card {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+.teacher-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+}
+
+.teacher-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.teacher-name {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.teacher-type {
+    padding: 0.25rem 0.75rem;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.teacher-type.담임교사 {
+    background: #e3f2fd;
+    color: #1976d2;
+}
+
+.teacher-type.교과전담교사 {
+    background: #f3e5f5;
+    color: #7b1fa2;
+}
+
+.teacher-info {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.teacher-info-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.teacher-info-label {
+    font-size: 0.8rem;
+    color: #666;
+    margin-bottom: 0.25rem;
+}
+
+.teacher-info-value {
+    font-weight: 500;
+    color: #333;
+}
+
+.teacher-actions {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+}
+
+/* 교사 목록 테이블 */
+.teachers-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+.teachers-table th {
+    background: #f8f9fa;
+    padding: 1rem;
+    text-align: left;
+    font-weight: 600;
+    color: #555;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.teachers-table td {
+    padding: 1rem;
+    border-bottom: 1px solid #e0e0e0;
+    vertical-align: middle;
+}
+
+.teachers-table tr:hover {
+    background: #f8f9fa;
+}
+
+.teacher-type-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.teacher-type-badge.담임교사 {
+    background: #e3f2fd;
+    color: #1976d2;
+}
+
+.teacher-type-badge.교과전담교사 {
+    background: #f3e5f5;
+    color: #7b1fa2;
+}
+
+/* 액션 버튼 */
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-edit {
+    background: #28a745;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: all 0.3s ease;
+}
+
+.btn-edit:hover {
+    background: #218838;
+    transform: translateY(-1px);
+}
+
+.btn-delete {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: all 0.3s ease;
+}
+
+.btn-delete:hover {
+    background: #c82333;
+    transform: translateY(-1px);
+}
+
+/* 모달 */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+    background-color: white;
+    margin: 5% auto;
+    padding: 2rem;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 500px;
+    position: relative;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.modal-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.close {
+    color: #aaa;
+    font-size: 1.5rem;
+    font-weight: bold;
+    cursor: pointer;
+    border: none;
+    background: none;
+}
+
+.close:hover {
+    color: #000;
+}
+
+/* 알림 */
+.alert {
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-radius: 5px;
+    border: 1px solid transparent;
+}
+
+.alert-success {
+    color: #155724;
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+}
+
+.alert-error {
+    color: #721c24;
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+}
+
+.alert-info {
+    color: #0c5460;
+    background-color: #d1ecf1;
+    border-color: #bee5eb;
+}
+
+/* 로딩 */
+.loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #667eea;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* 빈 상태 */
+.empty-state {
+    text-align: center;
+    padding: 3rem;
+    color: #666;
+}
+
+.empty-state-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.empty-state h3 {
+    margin-bottom: 0.5rem;
+    color: #333;
+}
+
+.empty-state p {
+    color: #666;
+    margin-bottom: 1.5rem;
+}
+
+/* 필터 */
+.filter-bar {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.filter-group label {
+    font-size: 0.8rem;
+    color: #666;
+    font-weight: 500;
+}
+
+.filter-group select {
+    padding: 0.5rem;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    font-size: 0.9rem;
+}
+
+/* 통계 카드 */
+.stats-card {
+    background: white;
+    border-radius: 10px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    margin-bottom: 1rem;
+}
+
+.stats-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.stats-card-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.stats-card-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #667eea;
+}
+
+.stats-card-change {
+    font-size: 0.8rem;
+    color: #666;
+}
+
+.stats-card-change.positive {
+    color: #28a745;
+}
+
+.stats-card-change.negative {
+    color: #dc3545;
+}
+
+/* 스케줄 관리 스타일 */
+.schedule-controls {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.schedule-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.schedule-tab-btn {
+    background: #f8f9fa;
+    border: 1px solid #e0e0e0;
+    color: #666;
+    padding: 0.75rem 1.5rem;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.schedule-tab-btn:hover {
+    background: #e9ecef;
+    color: #333;
+}
+
+.schedule-tab-btn.active {
+    background: #667eea;
+    color: white;
+    border-color: #667eea;
+}
+
+.schedule-type-content {
+    display: none;
+}
+
+.schedule-type-content.active {
+    display: block;
+}
+
+.specialist-controls {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.specialist-controls select {
+    padding: 0.5rem 1rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    min-width: 250px;
+}
+
+.specialist-controls select:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.specialist-info-card {
+    background: #f8f9fa;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.specialist-info-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.specialist-info-header h3 {
+    margin: 0;
+    color: #333;
+}
+
+.subject-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    background: #f3e5f5;
+    color: #7b1fa2;
+}
+
+.specialist-info-details p {
+    color: #666;
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+.specialist-cell {
+    position: relative;
+}
+
+.specialist-classes {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.class-input-container {
+    width: 100%;
+    padding: 0.25rem;
+}
+
+.class-input {
+    width: 100%;
+    border: none;
+    background: transparent;
+    text-align: center;
+    font-size: 0.7rem;
+    color: inherit;
+    padding: 0.25rem;
+    border-radius: 3px;
+}
+
+.class-input:focus {
+    outline: none;
+    background: rgba(255,255,255,0.9);
+    border: 1px solid #667eea;
+}
+
+.class-input::placeholder {
+    font-size: 0.6rem;
+    color: #999;
+}
+
+.class-input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.25);
+}
+
+.specialist-cell.teaching {
+    cursor: default;
+}
+
+.specialist-cell.teaching .class-input {
+    cursor: text;
+}
+
+.specialist-cell.selected {
+    transform: scale(1.05);
+    transition: transform 0.2s ease;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+/* 시간대 설정 모달 */
+.time-slots-container {
+    margin: 1rem 0;
+}
+
+.time-slot-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 5px;
+    border: 1px solid #e0e0e0;
+}
+
+.time-slot-item input {
+    flex: 1;
+    padding: 0.5rem;
+    border: 1px solid #e0e0e0;
+    border-radius: 3px;
+    font-size: 0.9rem;
+}
+
+.time-slot-item input:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.time-slot-item .time-slot-label {
+    min-width: 60px;
+    font-weight: 500;
+    color: #333;
+}
+
+.time-slot-item .time-slot-format {
+    font-size: 0.8rem;
+    color: #666;
+    min-width: 120px;
+}
+
+.time-slots-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e0e0e0;
+}
+
+.time-slots-actions button {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+}
+
+.modal-footer {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e0e0e0;
+}
+
+.modal-footer button {
+    padding: 0.75rem 1.5rem;
+    font-size: 0.9rem;
+}
+
+/* 에러 메시지 스타일 */
+.error-message {
+    color: #dc3545;
+    font-size: 0.8rem;
+    margin-top: 0.25rem;
+    display: block;
+}
+
+.time-slot-item input.error {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
+
+/* 폼 에러 스타일 */
+.form-group input.error,
+.form-group select.error {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
+
+.form-group .error-message {
+    color: #dc3545;
+    font-size: 0.8rem;
+    margin-top: 0.25rem;
+    display: block;
+}
+
+.schedule-controls select {
+    padding: 0.5rem 1rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    min-width: 200px;
+}
+
+.schedule-controls select:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.teacher-info-card {
+    background: #f8f9fa;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.teacher-info-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.teacher-info-header h3 {
+    margin: 0;
+    color: #333;
+}
+
+.teacher-info-details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.info-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.info-label {
+    font-size: 0.8rem;
+    color: #666;
+    margin-bottom: 0.25rem;
+    font-weight: 500;
+}
+
+.info-item span:last-child {
+    font-weight: 500;
+    color: #333;
+}
+
+/* 스케줄 편집 폼 */
+.schedule-form-container {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.schedule-form h3 {
+    margin-bottom: 1.5rem;
+    color: #333;
+}
+
+.schedule-grid {
+    display: grid;
+    grid-template-columns: 100px repeat(5, 1fr);
+    gap: 1px;
+    background: #e0e0e0;
+    border-radius: 5px;
+    overflow: hidden;
+    margin-bottom: 2rem;
+}
+
+.schedule-header {
+    display: contents;
+}
+
+.time-header,
+.day-header {
+    background: #667eea;
+    color: white;
+    padding: 1rem;
+    text-align: center;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.time-header {
+    background: #5a6fd8;
+}
+
+.schedule-body {
+    display: contents;
+}
+
+.schedule-cell {
+    background: white;
+    padding: 0.75rem;
+    min-height: 60px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 1px solid #e0e0e0;
+}
+
+.schedule-cell:hover {
+    background: #f8f9fa;
+    transform: scale(1.02);
+}
+
+.schedule-cell.available {
+    background: #d4edda;
+    color: #155724;
+}
+
+.schedule-cell.teaching {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.schedule-cell.unavailable {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.schedule-cell.selected {
+    border: 2px solid #667eea;
+    box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+}
+
+.schedule-cell input {
+    width: 100%;
+    border: none;
+    background: transparent;
+    text-align: center;
+    font-size: 0.8rem;
+    color: inherit;
+}
+
+.schedule-cell input:focus {
+    outline: none;
+    background: rgba(255,255,255,0.8);
+    border-radius: 3px;
+}
+
+.schedule-legend {
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 5px;
+    margin-bottom: 1.5rem;
+}
+
+.schedule-legend h4 {
+    margin-bottom: 1rem;
+    color: #333;
+    font-size: 1rem;
+}
+
+.legend-items {
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.legend-color {
+    width: 20px;
+    height: 20px;
+    border-radius: 3px;
+    border: 1px solid #ccc;
+}
+
+.legend-color.available {
+    background: #d4edda;
+}
+
+.legend-color.teaching {
+    background: #fff3cd;
+}
+
+.legend-color.unavailable {
+    background: #f8d7da;
+}
+
+.schedule-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+}
+
+/* 캘린더 스타일 */
+.calendar-container {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.calendar-header h3 {
+    margin: 0;
+    color: #333;
+    font-size: 1.2rem;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 1px;
+    background: #e0e0e0;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.calendar-day {
+    background: white;
+    padding: 1rem;
+    min-height: 80px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    border: 1px solid #e0e0e0;
+    position: relative;
+}
+
+.calendar-day.other-month {
+    background: #f8f9fa;
+    color: #999;
+}
+
+.calendar-day.today {
+    background: #e3f2fd;
+    border-color: #1976d2;
+}
+
+.calendar-day-number {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.calendar-day-events {
+    font-size: 0.7rem;
+    color: #666;
+    text-align: center;
+}
+
+.calendar-day-events .event-count {
+    background: #667eea;
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    font-size: 0.6rem;
+    font-weight: 600;
+}
+
+/* 반응형 테이블 */
+@media (max-width: 768px) {
+    .teachers-table {
+        font-size: 0.8rem;
+    }
+    
+    .teachers-table th,
+    .teachers-table td {
+        padding: 0.5rem;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+    
+    .btn-edit,
+    .btn-delete {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.7rem;
+    }
+    
+    .filter-bar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .filter-group {
+        flex-direction: row;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .filter-group label {
+        min-width: 80px;
+    }
+    
+    /* 스케줄 관리 반응형 */
+    .schedule-controls {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.5rem;
+    }
+    
+    .schedule-controls select {
+        min-width: auto;
+    }
+    
+    .schedule-grid {
+        grid-template-columns: 80px repeat(5, 1fr);
+        font-size: 0.8rem;
+    }
+    
+    .schedule-cell {
+        padding: 0.5rem;
+        min-height: 50px;
+    }
+    
+    .legend-items {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .calendar-grid {
+        font-size: 0.8rem;
+    }
+    
+    .calendar-day {
+        padding: 0.5rem;
+        min-height: 60px;
+    }
+}
+
+/* 보결 검색 스타일 */
+.substitute-request-form {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.substitute-request-form h3 {
+    margin-bottom: 1.5rem;
+    color: #333;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.available-teachers-container {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.teachers-list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.search-info {
+    font-weight: 500;
+    color: #666;
+}
+
+.sort-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.sort-controls label {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.sort-controls select {
+    padding: 0.5rem;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    font-size: 0.9rem;
+}
+
+.teacher-card {
+    background: #f8f9fa;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+}
+
+.teacher-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.teacher-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.teacher-card-name {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.teacher-card-type {
+    padding: 0.25rem 0.75rem;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.teacher-card-reason {
+    margin: 0.5rem 0;
+    padding: 0.5rem;
+    background: #f8f9fa;
+    border-radius: 5px;
+    border-left: 3px solid #667eea;
+}
+
+.reason-text {
+    font-size: 0.9rem;
+    color: #495057;
+    font-weight: 500;
+}
+
+/* 보결 기록 액션 버튼 */
+.record-actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.record-actions .btn {
+    padding: 0.25rem 0.75rem;
+    font-size: 0.8rem;
+    border-radius: 3px;
+}
+
+.record-actions .btn-secondary {
+    background: #6c757d;
+    color: white;
+    border: none;
+}
+
+.record-actions .btn-secondary:hover {
+    background: #5a6268;
+}
+
+.record-actions .btn-danger {
+    background: #dc3545;
+    color: white;
+    border: none;
+}
+
+.record-actions .btn-danger:hover {
+    background: #c82333;
+}
+
+.teacher-card-type.담임교사 {
+    background: #e3f2fd;
+    color: #1976d2;
+}
+
+.teacher-card-type.교과전담교사 {
+    background: #f3e5f5;
+    color: #7b1fa2;
+}
+
+.teacher-card-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-label {
+    font-size: 0.8rem;
+    color: #666;
+    margin-bottom: 0.25rem;
+}
+
+.stat-value {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.stat-change {
+    font-size: 0.7rem;
+    color: #666;
+}
+
+.substitute-records {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 2rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.records-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.filter-controls {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.filter-controls select {
+    padding: 0.5rem;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    font-size: 0.9rem;
+}
+
+.records-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.record-item {
+    background: #f8f9fa;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.record-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.record-teacher {
+    font-weight: 600;
+    color: #333;
+}
+
+.record-details {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.record-date {
+    font-size: 0.8rem;
+    color: #999;
+}
+
+/* 통계 스타일 */
+.export-controls {
+    display: flex;
+    gap: 1rem;
+}
+
+.stats-overview {
+    margin-bottom: 2rem;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stats-card {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+.stats-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+}
+
+.stats-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.stats-card-title {
+    font-size: 0.9rem;
+    color: #666;
+    font-weight: 500;
+}
+
+.stats-card-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #667eea;
+    margin-bottom: 0.5rem;
+}
+
+.stats-card-change {
+    font-size: 0.8rem;
+    color: #666;
+}
+
+.teacher-stats-section,
+.monthly-stats-section,
+.pattern-analysis-section {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.teacher-stats-section h3,
+.monthly-stats-section h3,
+.pattern-analysis-section h3 {
+    margin-bottom: 1.5rem;
+    color: #333;
+    border-bottom: 2px solid #e0e0e0;
+    padding-bottom: 0.5rem;
+}
+
+.stats-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.teacher-stats-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.teacher-stat-item {
+    background: #f8f9fa;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.teacher-stat-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.teacher-stat-name {
+    font-weight: 600;
+    color: #333;
+    font-size: 1.1rem;
+}
+
+.teacher-stat-details {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.teacher-stat-stats {
+    display: flex;
+    gap: 2rem;
+    text-align: center;
+}
+
+.teacher-stat-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.teacher-stat-stat-label {
+    font-size: 0.8rem;
+    color: #666;
+}
+
+.teacher-stat-stat-value {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.monthly-chart-container {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 1.5rem;
+    min-height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.monthly-chart {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: end;
+    justify-content: space-around;
+    gap: 1rem;
+}
+
+.chart-bar {
+    background: linear-gradient(to top, #667eea, #764ba2);
+    border-radius: 4px 4px 0 0;
+    min-width: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: end;
+    padding: 0.5rem;
+    color: white;
+    font-size: 0.8rem;
+    font-weight: 600;
+    position: relative;
+}
+
+.chart-bar:hover {
+    background: linear-gradient(to top, #5a6fd8, #6a4190);
+    transform: scale(1.05);
+}
+
+.chart-label {
+    margin-top: 0.5rem;
+    font-size: 0.7rem;
+    color: #666;
+    text-align: center;
+}
+
+.pattern-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.pattern-card {
+    background: #f8f9fa;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 1.5rem;
+}
+
+.pattern-card h4 {
+    margin-bottom: 1rem;
+    color: #333;
+    font-size: 1rem;
+}
+
+.pattern-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.pattern-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem;
+    background: white;
+    border-radius: 5px;
+    border: 1px solid #e0e0e0;
+}
+
+.pattern-item-name {
+    font-weight: 500;
+    color: #333;
+}
+
+.pattern-item-count {
+    font-weight: 600;
+    color: #667eea;
+    background: #e3f2fd;
+    padding: 0.25rem 0.5rem;
+    border-radius: 15px;
+    font-size: 0.8rem;
+}
+
+/* 반응형 보결 검색 */
+@media (max-width: 768px) {
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .teachers-list-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1rem;
+    }
+    
+    .teacher-card-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .records-controls {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1rem;
+    }
+    
+    .filter-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .stats-controls {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1rem;
+    }
+    
+    .teacher-stat-item {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1rem;
+    }
+    
+    .teacher-stat-stats {
+        justify-content: space-around;
+    }
+    
+    .pattern-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .monthly-chart {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .chart-bar {
+        min-width: 60px;
+        min-height: 40px;
+    }
+}
