@@ -171,12 +171,14 @@
 
 .modal-content {
     background-color: white;
-    margin: 5% auto;
+    margin: 2% auto;
     padding: 2rem;
     border-radius: 10px;
     width: 90%;
     max-width: 500px;
     position: relative;
+    max-height: 90vh;
+    overflow-y: auto;
 }
 
 .modal-header {
@@ -384,12 +386,10 @@
 }
 
 .schedule-type-content {
-    display: none;
-}
-
-.schedule-type-content.active {
     display: block;
 }
+
+/* 교과전담교사 스케줄 관리만 사용하므로 항상 표시 */
 
 .specialist-controls {
     display: flex;
@@ -469,7 +469,8 @@
     border: none;
     background: transparent;
     text-align: center;
-    font-size: 0.7rem;
+    font-size: 0.8rem;
+    font-weight: 500;
     color: inherit;
     padding: 0.25rem;
     border-radius: 3px;
@@ -479,17 +480,13 @@
     outline: none;
     background: rgba(255,255,255,0.9);
     border: 1px solid #667eea;
+    box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.25);
 }
 
 .class-input::placeholder {
-    font-size: 0.6rem;
+    font-size: 0.7rem;
     color: #999;
-}
-
-.class-input:focus {
-    outline: none;
-    border-color: #667eea;
-    box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.25);
+    font-weight: 400;
 }
 
 .specialist-cell.teaching {
@@ -725,16 +722,22 @@
 .schedule-cell.available {
     background: #d4edda;
     color: #155724;
+    font-size: 0.8rem;
+    font-weight: 500;
 }
 
 .schedule-cell.teaching {
     background: #fff3cd;
     color: #856404;
+    font-size: 0.8rem;
+    font-weight: 500;
 }
 
 .schedule-cell.unavailable {
     background: #f8d7da;
     color: #721c24;
+    font-size: 0.8rem;
+    font-weight: 500;
 }
 
 .schedule-cell.selected {
@@ -1445,6 +1448,362 @@
     font-size: 0.8rem;
 }
 
+/* 컨텍스트 메뉴 스타일 */
+.context-menu {
+    position: absolute;
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    z-index: 1000;
+    min-width: 180px;
+    overflow: hidden;
+    animation: contextMenuFadeIn 0.2s ease-out;
+    pointer-events: auto;
+}
+
+@keyframes contextMenuFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95) translateY(-5px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.context-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.context-menu-item:last-child {
+    border-bottom: none;
+}
+
+.context-menu-item:hover {
+    background: #f8f9fa;
+    color: #333;
+}
+
+.context-menu-item:active {
+    background: #e9ecef;
+    transform: scale(0.98);
+}
+
+.context-menu-icon {
+    width: 16px;
+    height: 16px;
+    border-radius: 3px;
+    border: 1px solid #ccc;
+    flex-shrink: 0;
+}
+
+.context-menu-icon.available {
+    background: #d4edda;
+    border-color: #c3e6cb;
+}
+
+.context-menu-icon.teaching {
+    background: #fff3cd;
+    border-color: #ffeaa7;
+}
+
+.context-menu-icon.unavailable {
+    background: #f8d7da;
+    border-color: #f5c6cb;
+}
+
+.context-menu-item span:last-child {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #333;
+}
+
+/* 컨텍스트 메뉴가 활성화된 셀 스타일 */
+.specialist-cell.context-menu-active {
+    border: 2px solid #667eea;
+    box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+    background: #f8f9ff;
+}
+
+/* 교사 일괄 추가 스타일 */
+.header-actions {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.modal-content.large {
+    max-width: 800px;
+    width: 95%;
+    max-height: 85vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-content.large .modal-body {
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 0.5rem;
+}
+
+.modal-content.large .modal-footer {
+    flex-shrink: 0;
+    margin-top: auto;
+}
+
+.bulk-add-instructions {
+    background: #f8f9fa;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.bulk-add-instructions h4 {
+    margin-bottom: 1rem;
+    color: #333;
+    font-size: 1.1rem;
+}
+
+.bulk-add-instructions p {
+    margin-bottom: 1rem;
+    color: #666;
+    line-height: 1.5;
+}
+
+.format-examples {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.format-example {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+}
+
+.format-example strong {
+    color: #333;
+    font-weight: 600;
+    min-width: 120px;
+}
+
+.format-example code {
+    background: #f8f9fa;
+    padding: 0.25rem 0.5rem;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+    color: #e83e8c;
+    border: 1px solid #e0e0e0;
+}
+
+#bulk-teachers-input {
+    width: 100%;
+    min-height: 200px;
+    padding: 1rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    resize: vertical;
+    transition: border-color 0.3s ease;
+}
+
+#bulk-teachers-input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.bulk-preview {
+    background: #f8f9fa;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.bulk-preview h4 {
+    margin-bottom: 1rem;
+    color: #333;
+    font-size: 1.1rem;
+}
+
+.bulk-preview-content {
+    max-height: 300px;
+    overflow-y: auto;
+    padding-right: 0.5rem;
+}
+
+.bulk-preview-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.bulk-preview-content::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.bulk-preview-content::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+
+.bulk-preview-content::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+.bulk-preview-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem;
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    margin-bottom: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.bulk-preview-item:last-child {
+    margin-bottom: 0;
+}
+
+.bulk-preview-item.valid {
+    border-color: #28a745;
+    background: #f8fff9;
+}
+
+.bulk-preview-item.invalid {
+    border-color: #dc3545;
+    background: #fff8f8;
+}
+
+.bulk-preview-item .teacher-name {
+    font-weight: 600;
+    color: #333;
+    min-width: 100px;
+}
+
+.bulk-preview-item .teacher-type {
+    padding: 0.25rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    min-width: 80px;
+    text-align: center;
+}
+
+.bulk-preview-item .teacher-type.담임교사 {
+    background: #e3f2fd;
+    color: #1976d2;
+}
+
+.bulk-preview-item .teacher-type.교과전담교사 {
+    background: #f3e5f5;
+    color: #7b1fa2;
+}
+
+.bulk-preview-item .teacher-details {
+    flex: 1;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.bulk-preview-item .validation-status {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.bulk-preview-item .validation-status.valid {
+    color: #28a745;
+}
+
+.bulk-preview-item .validation-status.invalid {
+    color: #dc3545;
+}
+
+.bulk-preview-item .validation-icon {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: bold;
+}
+
+.bulk-preview-item .validation-icon.valid {
+    background: #28a745;
+    color: white;
+}
+
+.bulk-preview-item .validation-icon.invalid {
+    background: #dc3545;
+    color: white;
+}
+
+.bulk-preview-summary {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    padding: 1rem;
+    margin-top: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.bulk-preview-summary .summary-stats {
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+}
+
+.bulk-preview-summary .stat-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.bulk-preview-summary .stat-item .stat-label {
+    color: #666;
+}
+
+.bulk-preview-summary .stat-item .stat-value {
+    font-weight: 600;
+    color: #333;
+}
+
+.bulk-preview-summary .stat-item .stat-value.valid {
+    color: #28a745;
+}
+
+.bulk-preview-summary .stat-item .stat-value.invalid {
+    color: #dc3545;
+}
+
 /* 반응형 보결 검색 */
 @media (max-width: 768px) {
     .form-row {
@@ -1504,5 +1863,61 @@
     .chart-bar {
         min-width: 60px;
         min-height: 40px;
+    }
+    
+    /* 모바일에서 컨텍스트 메뉴 조정 */
+    .context-menu {
+        min-width: 160px;
+        font-size: 0.9rem;
+    }
+    
+    .context-menu-item {
+        padding: 0.6rem 0.8rem;
+    }
+    
+    .context-menu-icon {
+        width: 14px;
+        height: 14px;
+    }
+    
+    /* 모바일에서 모달 스크롤 개선 */
+    .modal-content {
+        margin: 1% auto;
+        max-height: 95vh;
+        width: 95%;
+    }
+    
+    .modal-content.large {
+        max-height: 90vh;
+        width: 98%;
+    }
+    
+    .bulk-preview-content {
+        max-height: 200px;
+    }
+    
+    .bulk-preview-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+        padding: 0.5rem;
+    }
+    
+    .bulk-preview-item .teacher-name {
+        min-width: auto;
+        font-size: 0.9rem;
+    }
+    
+    .bulk-preview-item .teacher-type {
+        min-width: auto;
+        font-size: 0.7rem;
+    }
+    
+    .bulk-preview-item .teacher-details {
+        font-size: 0.8rem;
+    }
+    
+    .bulk-preview-item .validation-status {
+        font-size: 0.7rem;
     }
 }

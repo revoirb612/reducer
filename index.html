@@ -27,7 +27,10 @@
             <div id="teachers" class="tab-content active">
                 <div class="section-header">
                     <h2>교사 정보 관리</h2>
-                    <button class="btn btn-primary" id="add-teacher-btn">교사 추가</button>
+                    <div class="header-actions">
+                        <button class="btn btn-primary" id="add-teacher-btn">교사 추가</button>
+                        <button class="btn btn-secondary" id="bulk-add-teachers-btn">교사 일괄 추가</button>
+                    </div>
                 </div>
                 
                 <!-- 교사 추가 폼 -->
@@ -92,6 +95,49 @@
                     </form>
                 </div>
                 
+                <!-- 교사 일괄 추가 모달 -->
+                <div id="bulk-add-modal" class="modal" style="display: none;">
+                    <div class="modal-content large">
+                        <div class="modal-header">
+                            <h3>교사 일괄 추가</h3>
+                            <button class="close" id="close-bulk-add-modal">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="bulk-add-instructions">
+                                <h4>사용 방법</h4>
+                                <p>아래 형식에 따라 교사 정보를 입력하세요. 한 줄에 한 명씩 입력합니다.</p>
+                                <div class="format-examples">
+                                    <div class="format-example">
+                                        <strong>담임교사:</strong> <code>김교사,담임교사,3학년,2반</code>
+                                    </div>
+                                    <div class="format-example">
+                                        <strong>교과전담교사:</strong> <code>이교사,교과전담교사,체육</code>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="bulk-teachers-input">교사 정보 입력</label>
+                                <textarea 
+                                    id="bulk-teachers-input" 
+                                    placeholder="김교사,담임교사,3학년,2반&#10;이교사,교과전담교사,체육&#10;박교사,담임교사,1학년,1반"
+                                    rows="10"
+                                ></textarea>
+                            </div>
+                            
+                            <div class="bulk-preview" id="bulk-preview" style="display: none;">
+                                <h4>미리보기</h4>
+                                <div id="bulk-preview-content"></div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-primary" id="preview-bulk-teachers-btn">미리보기</button>
+                            <button class="btn btn-success" id="save-bulk-teachers-btn" disabled>일괄 추가</button>
+                            <button class="btn btn-secondary" id="cancel-bulk-add-btn">취소</button>
+                        </div>
+                    </div>
+                </div>
+                
                 <!-- 교사 목록 -->
                 <div class="teachers-list">
                     <h3>교사 목록</h3>
@@ -107,17 +153,11 @@
             <!-- 스케줄 관리 탭 -->
             <div id="schedule" class="tab-content">
                 <div class="section-header">
-                    <h2>스케줄 관리</h2>
-                    <div class="schedule-controls">
-                        <div class="schedule-tabs">
-                            <button class="schedule-tab-btn active" data-schedule-type="specialist">교과전담교사</button>
-                            <button class="schedule-tab-btn" data-schedule-type="class">담임교사</button>
-                        </div>
-                    </div>
+                    <h2>교과전담교사 스케줄 관리</h2>
                 </div>
                 
                 <!-- 교과전담교사 스케줄 관리 -->
-                <div id="specialist-schedule" class="schedule-type-content active">
+                <div id="specialist-schedule" class="schedule-type-content">
                     <div class="specialist-controls">
                         <select id="specialist-select">
                             <option value="">교과전담교사를 선택하세요</option>
@@ -178,6 +218,22 @@
                                     <!-- 교과전담교사 시간표 그리드가 여기에 동적으로 생성됩니다 -->
                                 </div>
                             </div>
+                            
+                            <!-- 우클릭 컨텍스트 메뉴 -->
+                            <div id="schedule-context-menu" class="context-menu" style="display: none;">
+                                <div class="context-menu-item" data-action="available">
+                                    <span class="context-menu-icon available"></span>
+                                    <span>보결 가능</span>
+                                </div>
+                                <div class="context-menu-item" data-action="teaching">
+                                    <span class="context-menu-icon teaching"></span>
+                                    <span>전담수업 (학급 입력)</span>
+                                </div>
+                                <div class="context-menu-item" data-action="unavailable">
+                                    <span class="context-menu-icon unavailable"></span>
+                                    <span>보결 불가</span>
+                                </div>
+                            </div>
                             <div class="schedule-legend">
                                 <h4>범례</h4>
                                 <div class="legend-items">
@@ -203,86 +259,7 @@
                     </div>
                 </div>
                 
-                <!-- 담임교사 스케줄 관리 (기존) -->
-                <div id="class-schedule" class="schedule-type-content">
-                    <div class="schedule-controls">
-                        <select id="schedule-teacher-select">
-                            <option value="">교사를 선택하세요</option>
-                        </select>
-                        <button class="btn btn-primary" id="edit-schedule-btn" disabled>스케줄 수정</button>
-                    </div>
-                    
-                    <!-- 교사 선택 안내 -->
-                    <div id="schedule-teacher-info" class="teacher-info-card" style="display: none;">
-                        <div class="teacher-info-header">
-                            <h3 id="selected-teacher-name"></h3>
-                            <span id="selected-teacher-type" class="teacher-type-badge"></span>
-                        </div>
-                        <div class="teacher-info-details">
-                            <div class="info-item">
-                                <span class="info-label">학년/반:</span>
-                                <span id="selected-teacher-grade-class"></span>
-                            </div>
-                            <div class="info-item" id="selected-teacher-subject-item" style="display: none;">
-                                <span class="info-label">담당 과목:</span>
-                                <span id="selected-teacher-subject"></span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- 스케줄 편집 폼 -->
-                    <div id="schedule-edit-form" class="schedule-form-container" style="display: none;">
-                        <h3>시간표 편집</h3>
-                        <div class="schedule-form">
-                            <div class="schedule-grid">
-                                <div class="schedule-header">
-                                    <div class="time-header">시간</div>
-                                    <div class="day-header">월</div>
-                                    <div class="day-header">화</div>
-                                    <div class="day-header">수</div>
-                                    <div class="day-header">목</div>
-                                    <div class="day-header">금</div>
-                                </div>
-                                <div class="schedule-body" id="schedule-grid-body">
-                                    <!-- 시간표 그리드가 여기에 동적으로 생성됩니다 -->
-                                </div>
-                            </div>
-                            <div class="schedule-legend">
-                                <h4>범례</h4>
-                                <div class="legend-items">
-                                    <div class="legend-item">
-                                        <span class="legend-color available"></span>
-                                        <span>보결 가능</span>
-                                    </div>
-                                    <div class="legend-item">
-                                        <span class="legend-color teaching"></span>
-                                        <span>수업 중</span>
-                                    </div>
-                                    <div class="legend-item">
-                                        <span class="legend-color unavailable"></span>
-                                        <span>보결 불가</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="schedule-actions">
-                                <button class="btn btn-primary" id="save-schedule-btn">저장</button>
-                                <button class="btn btn-secondary" id="cancel-schedule-btn">취소</button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- 캘린더 뷰 -->
-                    <div id="schedule-calendar" class="calendar-container">
-                        <div class="calendar-header">
-                            <button class="btn btn-sm" id="prev-month-btn">◀</button>
-                            <h3 id="calendar-month-year"></h3>
-                            <button class="btn btn-sm" id="next-month-btn">▶</button>
-                        </div>
-                        <div class="calendar-grid" id="calendar-grid">
-                            <!-- 캘린더가 여기에 동적으로 생성됩니다 -->
-                        </div>
-                    </div>
-                </div>
+                <!-- 담임교사는 교과전담교사의 전담수업 시간에만 자동으로 보결가능하므로 별도 스케줄 관리 불필요 -->
             </div>
 
             <!-- 보결 검색 탭 -->
@@ -493,7 +470,7 @@
     <script src="data.js"></script>
     <script src="utils.js"></script>
     <script src="time-slots-manager.js"></script>
-    <script src="schedule.js"></script>
+    <!-- schedule.js 제거 - 담임교사 스케줄 관리 기능 제거됨 -->
     <script src="specialist-schedule.js"></script>
     <script src="statistics.js"></script>
     <script src="main.js"></script>

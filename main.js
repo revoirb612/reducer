@@ -10,6 +10,9 @@ class App {
         this.bindEvents();
         this.loadTeachers();
         this.updateUI();
+        
+        // 데이터 마이그레이션 실행
+        dataManager.runDataMigration();
     }
 
     bindEvents() {
@@ -45,6 +48,30 @@ class App {
         // 교사 검색
         document.getElementById('teacher-search').addEventListener('input', (e) => {
             this.searchTeachers(e.target.value);
+        });
+
+        // 교사 일괄 추가 버튼
+        document.getElementById('bulk-add-teachers-btn').addEventListener('click', () => {
+            this.showBulkAddModal();
+        });
+
+        // 일괄 추가 모달 닫기
+        document.getElementById('close-bulk-add-modal').addEventListener('click', () => {
+            this.hideBulkAddModal();
+        });
+
+        document.getElementById('cancel-bulk-add-btn').addEventListener('click', () => {
+            this.hideBulkAddModal();
+        });
+
+        // 일괄 추가 미리보기
+        document.getElementById('preview-bulk-teachers-btn').addEventListener('click', () => {
+            this.previewBulkTeachers();
+        });
+
+        // 일괄 추가 실행
+        document.getElementById('save-bulk-teachers-btn').addEventListener('click', () => {
+            this.saveBulkTeachers();
         });
     }
 
@@ -328,41 +355,14 @@ class App {
         }
     }
 
-    // 스케줄 관리 탭 로딩
+    // 스케줄 관리 탭 로딩 (교과전담교사 전용)
     loadSchedule() {
-        if (scheduleManager) {
-            scheduleManager.loadTeachers();
-            scheduleManager.updateCalendar();
-        }
         if (specialistScheduleManager) {
             specialistScheduleManager.loadSpecialists();
         }
-        this.bindScheduleTabEvents();
     }
 
-    bindScheduleTabEvents() {
-        // 스케줄 탭 전환
-        document.querySelectorAll('.schedule-tab-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const scheduleType = e.target.dataset.scheduleType;
-                this.switchScheduleTab(scheduleType);
-            });
-        });
-    }
-
-    switchScheduleTab(type) {
-        // 모든 탭 비활성화
-        document.querySelectorAll('.schedule-tab-btn').forEach(btn => {
-            btn.classList.remove('active');
-        });
-        document.querySelectorAll('.schedule-type-content').forEach(content => {
-            content.classList.remove('active');
-        });
-
-        // 선택된 탭 활성화
-        document.querySelector(`[data-schedule-type="${type}"]`).classList.add('active');
-        document.getElementById(`${type}-schedule`).classList.add('active');
-    }
+    // 스케줄 탭 로직 제거됨 - 교과전담교사 전용으로 단순화
 
     loadSubstitute() {
         if (statisticsManager) {
@@ -375,14 +375,180 @@ class App {
             statisticsManager.loadStatistics();
         }
     }
+
+    // 교사 일괄 추가 관련 메서드들
+    showBulkAddModal() {
+        document.getElementById('bulk-add-modal').style.display = 'block';
+        document.getElementById('bulk-teachers-input').value = '';
+        document.getElementById('bulk-preview').style.display = 'none';
+        document.getElementById('save-bulk-teachers-btn').disabled = true;
+    }
+
+    hideBulkAddModal() {
+        document.getElementById('bulk-add-modal').style.display = 'none';
+        document.getElementById('bulk-teachers-input').value = '';
+        document.getElementById('bulk-preview').style.display = 'none';
+        document.getElementById('save-bulk-teachers-btn').disabled = true;
+    }
+
+    previewBulkTeachers() {
+        const inputText = document.getElementById('bulk-teachers-input').value.trim();
+        if (!inputText) {
+            Utils.showNotification('교사 정보를 입력해주세요.', 'error');
+            return;
+        }
+
+        try {
+            // 데이터 파싱
+            const parseResult = dataManager.parseBulkTeachersData(inputText);
+            
+            if (parseResult.errors.length > 0) {
+                this.showBulkPreviewErrors(parseResult.errors);
+                return;
+            }
+
+            // 유효성 검사 및 미리보기 생성
+            this.showBulkPreview(parseResult.teachers);
+        } catch (error) {
+            console.error('Error parsing bulk teachers data:', error);
+            Utils.showNotification('데이터 파싱 중 오류가 발생했습니다.', 'error');
+        }
+    }
+
+    showBulkPreview(teachersData) {
+        const previewContainer = document.getElementById('bulk-preview-content');
+        const preview = document.getElementById('bulk-preview');
+        
+        let validCount = 0;
+        let invalidCount = 0;
+        let previewHTML = '';
+
+        teachersData.forEach((teacherData, index) => {
+            const validation = dataManager.validateBulkTeacherData(teacherData);
+            const isValid = validation.isValid;
+            
+            if (isValid) {
+                validCount++;
+            } else {
+                invalidCount++;
+            }
+
+            previewHTML += `
+                <div class="bulk-preview-item ${isValid ? 'valid' : 'invalid'}">
+                    <div class="teacher-name">${teacherData.name}</div>
+                    <div class="teacher-type ${teacherData.type}">${teacherData.type}</div>
+                    <div class="teacher-details">
+                        ${teacherData.type === '담임교사' 
+                            ? `${teacherData.grade} ${teacherData.class}` 
+                            : teacherData.subject
+                        }
+                        ${teacherData.type === '교과전담교사' && teacherData.grade 
+                            ? ` (${teacherData.grade})` 
+                            : ''
+                        }
+                    </div>
+                    <div class="validation-status ${isValid ? 'valid' : 'invalid'}">
+                        <div class="validation-icon ${isValid ? 'valid' : 'invalid'}">
+                            ${isValid ? '✓' : '✗'}
+                        </div>
+                        ${isValid ? '유효' : validation.error}
+                    </div>
+                </div>
+            `;
+        });
+
+        previewContainer.innerHTML = previewHTML + `
+            <div class="bulk-preview-summary">
+                <div class="summary-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">총 교사:</span>
+                        <span class="stat-value">${teachersData.length}명</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">유효:</span>
+                        <span class="stat-value valid">${validCount}명</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">오류:</span>
+                        <span class="stat-value invalid">${invalidCount}명</span>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        preview.style.display = 'block';
+        
+        // 유효한 교사가 있을 때만 저장 버튼 활성화
+        document.getElementById('save-bulk-teachers-btn').disabled = validCount === 0;
+    }
+
+    showBulkPreviewErrors(errors) {
+        const previewContainer = document.getElementById('bulk-preview-content');
+        const preview = document.getElementById('bulk-preview');
+        
+        let errorHTML = '<div class="bulk-preview-item invalid"><div class="validation-status invalid">파싱 오류가 발생했습니다:</div></div>';
+        
+        errors.forEach(error => {
+            errorHTML += `
+                <div class="bulk-preview-item invalid">
+                    <div class="teacher-name">${error.line}번째 줄</div>
+                    <div class="validation-status invalid">
+                        <div class="validation-icon invalid">✗</div>
+                        ${error.error}
+                    </div>
+                </div>
+            `;
+        });
+
+        previewContainer.innerHTML = errorHTML;
+        preview.style.display = 'block';
+        document.getElementById('save-bulk-teachers-btn').disabled = true;
+    }
+
+    saveBulkTeachers() {
+        const inputText = document.getElementById('bulk-teachers-input').value.trim();
+        if (!inputText) {
+            Utils.showNotification('교사 정보를 입력해주세요.', 'error');
+            return;
+        }
+
+        try {
+            // 데이터 파싱
+            const parseResult = dataManager.parseBulkTeachersData(inputText);
+            
+            if (parseResult.errors.length > 0) {
+                Utils.showNotification('파싱 오류가 있습니다. 미리보기를 먼저 확인해주세요.', 'error');
+                return;
+            }
+
+            // 일괄 추가 실행
+            const results = dataManager.bulkAddTeachers(parseResult.teachers);
+            
+            if (results.success.length > 0) {
+                Utils.showNotification(`${results.success.length}명의 교사가 추가되었습니다.`, 'success');
+                this.hideBulkAddModal();
+                this.loadTeachers();
+            }
+            
+            if (results.errors.length > 0) {
+                Utils.showNotification(`${results.errors.length}명의 교사 추가에 실패했습니다.`, 'error');
+            }
+        } catch (error) {
+            console.error('Error saving bulk teachers:', error);
+            Utils.showNotification('교사 일괄 추가 중 오류가 발생했습니다.', 'error');
+        }
+    }
 }
 
 // 애플리케이션 초기화
 let app;
 document.addEventListener('DOMContentLoaded', () => {
     app = new App();
-    scheduleManager = new ScheduleManager();
+    // scheduleManager 제거 - 담임교사 스케줄 관리 기능 제거됨
     statisticsManager = new StatisticsManager();
     specialistScheduleManager = new SpecialistScheduleManager();
     timeSlotsManager = new TimeSlotsManager();
+    
+    // 교과전담교사 목록 초기 로드
+    specialistScheduleManager.loadSpecialists();
 });

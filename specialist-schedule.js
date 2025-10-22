@@ -3,6 +3,8 @@ class SpecialistScheduleManager {
     constructor() {
         this.currentSpecialist = null;
         this.timeSlots = this.loadTimeSlots();
+        this.contextMenu = null;
+        this.contextMenuTarget = null;
         this.init();
     }
 
@@ -24,6 +26,7 @@ class SpecialistScheduleManager {
     init() {
         this.bindEvents();
         this.loadSpecialists();
+        this.initContextMenu();
     }
 
     bindEvents() {
@@ -148,15 +151,21 @@ class SpecialistScheduleManager {
                 const schedule = this.currentSpecialist.schedule?.[day]?.[time];
                 this.updateSpecialistScheduleCell(cell, schedule, dayNames[dayIndex]);
 
-                // 클릭 이벤트 (입력 필드가 아닌 경우에만)
+                // 클릭 이벤트 (컨텍스트 메뉴 표시)
                 cell.addEventListener('click', (e) => {
-                    // 입력 필드나 그 자식 요소를 클릭한 경우 토글하지 않음
+                    // 입력 필드나 그 자식 요소를 클릭한 경우 메뉴를 표시하지 않음
                     if (e.target.classList.contains('class-input') || 
                         e.target.closest('.class-input-container') ||
                         e.target.closest('.specialist-classes')) {
                         return;
                     }
-                    this.toggleSpecialistScheduleCell(cell);
+                    this.showContextMenu(e, cell);
+                });
+
+                // 우클릭 이벤트 (컨텍스트 메뉴)
+                cell.addEventListener('contextmenu', (e) => {
+                    e.preventDefault();
+                    this.showContextMenu(e, cell);
                 });
 
                 container.appendChild(cell);
@@ -195,6 +204,11 @@ class SpecialistScheduleManager {
                 input.addEventListener('focus', (e) => {
                     e.stopPropagation();
                 });
+                input.addEventListener('input', (e) => {
+                    e.stopPropagation();
+                    // 학급 입력이 변경될 때마다 담임교사 보결 가능 시간 업데이트
+                    this.updateClassTeacherAvailability();
+                });
             }
         } else if (type === '보결가능') {
             cell.classList.add('available');
@@ -205,43 +219,6 @@ class SpecialistScheduleManager {
         }
     }
 
-    toggleSpecialistScheduleCell(cell) {
-        const day = cell.dataset.day;
-        const time = cell.dataset.time;
-        
-        // 스케줄 데이터 안전하게 초기화
-        if (!this.currentSpecialist.schedule) {
-            this.currentSpecialist.schedule = {};
-        }
-        if (!this.currentSpecialist.schedule[day]) {
-            this.currentSpecialist.schedule[day] = {};
-        }
-        if (!this.currentSpecialist.schedule[day][time]) {
-            this.currentSpecialist.schedule[day][time] = { type: '보결가능', classes: [] };
-        }
-        
-        const schedule = this.currentSpecialist.schedule[day][time];
-
-        // 상태 토글: 보결가능 → 전담수업 → 보결불가 → 보결가능
-        if (schedule.type === '보결가능') {
-            schedule.type = '전담수업';
-            schedule.classes = [];
-        } else if (schedule.type === '전담수업') {
-            schedule.type = '보결불가';
-            schedule.classes = [];
-        } else {
-            schedule.type = '보결가능';
-            schedule.classes = [];
-        }
-
-        this.updateSpecialistScheduleCell(cell, schedule, '');
-        
-        // 시각적 피드백
-        cell.classList.add('selected');
-        setTimeout(() => {
-            cell.classList.remove('selected');
-        }, 200);
-    }
 
     saveSpecialistSchedule() {
         if (!this.currentSpecialist) return;
@@ -288,20 +265,17 @@ class SpecialistScheduleManager {
             const classNum = classTeacher.class;
             const targetClass = `${grade.charAt(0)}-${classNum.charAt(0)}`;
             
-            // 모든 요일과 시간에 대해 확인
+            // 동적으로 시간대 가져오기
             const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
-            const timeSlots = [
-                '09:00-09:40', '10:00-10:40', '11:00-11:40', '12:00-12:40',
-                '13:00-13:40', '14:00-14:40', '15:00-15:40'
-            ];
+            const timeSlots = dataManager.getTimeSlots();
             
             days.forEach(day => {
                 timeSlots.forEach(time => {
                     // 해당 시간에 교과전담교사가 해당 학급에 수업하는지 확인
                     const hasSpecialistClass = specialists.some(specialist => {
-                        const schedule = specialist.schedule[day][time];
+                        const schedule = specialist.schedule?.[day]?.[time];
                         return schedule && schedule.type === '전담수업' && 
-                               schedule.target && schedule.target.includes(targetClass);
+                               schedule.classes && schedule.classes.includes(targetClass);
                     });
                     
                     // 교과전담교사가 수업 중이면 담임교사는 보결 가능
@@ -312,7 +286,7 @@ class SpecialistScheduleManager {
                             available: true
                         };
                     } else {
-                        // 교과전담교사가 수업하지 않으면 담임교사는 수업 중
+                        // 교과전담교사가 수업하지 않으면 담임교사는 담임수업 중
                         classTeacher.schedule[day][time] = {
                             type: '담임수업',
                             target: targetClass,
@@ -338,6 +312,194 @@ class SpecialistScheduleManager {
             const schedule = teacher.schedule[day][time];
             return schedule && schedule.available;
         });
+    }
+
+    // 컨텍스트 메뉴 초기화
+    initContextMenu() {
+        this.contextMenu = document.getElementById('schedule-context-menu');
+        if (!this.contextMenu) return;
+
+        // 컨텍스트 메뉴 아이템 클릭 이벤트
+        this.contextMenu.addEventListener('click', (e) => {
+            const menuItem = e.target.closest('.context-menu-item');
+            if (menuItem && this.contextMenuTarget) {
+                const action = menuItem.dataset.action;
+                this.handleContextMenuAction(action, this.contextMenuTarget);
+                this.hideContextMenu();
+            }
+        });
+
+        // 문서 클릭 시 컨텍스트 메뉴 숨기기
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.context-menu') && !e.target.closest('.specialist-cell')) {
+                this.hideContextMenu();
+            }
+        });
+
+        // ESC 키로 컨텍스트 메뉴 숨기기
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                this.hideContextMenu();
+            }
+        });
+    }
+
+    // 컨텍스트 메뉴 표시
+    showContextMenu(event, cell) {
+        if (!this.contextMenu) return;
+
+        // 기존 컨텍스트 메뉴가 있다면 숨기기
+        this.hideContextMenu();
+
+        // 타겟 셀 저장
+        this.contextMenuTarget = cell;
+
+        // 셀에 활성화 스타일 추가
+        cell.classList.add('context-menu-active');
+
+        // 메뉴를 먼저 표시하여 크기를 계산할 수 있도록 함
+        this.contextMenu.style.display = 'block';
+        this.contextMenu.style.visibility = 'hidden';
+
+        // 메뉴 위치 계산
+        const rect = cell.getBoundingClientRect();
+        const menuRect = this.contextMenu.getBoundingClientRect();
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+
+        // 기본 위치: 셀의 오른쪽 아래
+        let left = rect.right + 10;
+        let top = rect.top + scrollTop;
+
+        // 화면 경계 확인 및 조정
+        if (left + menuRect.width > viewportWidth + scrollLeft - 10) {
+            // 오른쪽에 공간이 없으면 왼쪽에 표시
+            left = rect.left - menuRect.width - 10;
+        }
+        
+        if (left < scrollLeft + 10) {
+            // 왼쪽에도 공간이 없으면 셀 중앙에 표시
+            left = rect.left + rect.width / 2 - menuRect.width / 2;
+        }
+
+        if (top + menuRect.height > viewportHeight + scrollTop - 10) {
+            // 아래쪽에 공간이 없으면 위쪽에 표시
+            top = rect.bottom - menuRect.height + scrollTop - 10;
+        }
+
+        // 최종 위치 조정
+        left = Math.max(scrollLeft + 10, Math.min(left, viewportWidth + scrollLeft - menuRect.width - 10));
+        top = Math.max(scrollTop + 10, Math.min(top, viewportHeight + scrollTop - menuRect.height - 10));
+
+        // 메뉴 위치 설정
+        this.contextMenu.style.left = `${left}px`;
+        this.contextMenu.style.top = `${top}px`;
+        this.contextMenu.style.visibility = 'visible';
+
+        // 현재 상태에 따라 메뉴 아이템 활성화/비활성화
+        this.updateContextMenuItems(cell);
+    }
+
+    // 컨텍스트 메뉴 숨기기
+    hideContextMenu() {
+        if (this.contextMenu) {
+            this.contextMenu.style.display = 'none';
+        }
+        if (this.contextMenuTarget) {
+            this.contextMenuTarget.classList.remove('context-menu-active');
+            this.contextMenuTarget = null;
+        }
+    }
+
+    // 컨텍스트 메뉴 아이템 상태 업데이트
+    updateContextMenuItems(cell) {
+        const day = cell.dataset.day;
+        const time = cell.dataset.time;
+        const schedule = this.currentSpecialist.schedule?.[day]?.[time];
+        const currentType = schedule?.type || '보결가능';
+
+        // 모든 메뉴 아이템 활성화
+        this.contextMenu.querySelectorAll('.context-menu-item').forEach(item => {
+            item.style.opacity = '1';
+            item.style.pointerEvents = 'auto';
+        });
+
+        // 현재 상태 표시 (선택된 상태로 표시)
+        const currentItem = this.contextMenu.querySelector(`[data-action="${this.getActionFromType(currentType)}"]`);
+        if (currentItem) {
+            currentItem.style.background = '#e3f2fd';
+            currentItem.style.color = '#1976d2';
+        }
+    }
+
+    // 상태 타입을 액션으로 변환
+    getActionFromType(type) {
+        switch (type) {
+            case '보결가능': return 'available';
+            case '전담수업': return 'teaching';
+            case '보결불가': return 'unavailable';
+            default: return 'available';
+        }
+    }
+
+    // 컨텍스트 메뉴 액션 처리
+    handleContextMenuAction(action, cell) {
+        const day = cell.dataset.day;
+        const time = cell.dataset.time;
+        
+        // 스케줄 데이터 안전하게 초기화
+        if (!this.currentSpecialist.schedule) {
+            this.currentSpecialist.schedule = {};
+        }
+        if (!this.currentSpecialist.schedule[day]) {
+            this.currentSpecialist.schedule[day] = {};
+        }
+        if (!this.currentSpecialist.schedule[day][time]) {
+            this.currentSpecialist.schedule[day][time] = { type: '보결가능', classes: [] };
+        }
+
+        const schedule = this.currentSpecialist.schedule[day][time];
+
+        // 액션에 따른 상태 설정
+        switch (action) {
+            case 'available':
+                schedule.type = '보결가능';
+                schedule.classes = [];
+                break;
+            case 'teaching':
+                schedule.type = '전담수업';
+                schedule.classes = [];
+                break;
+            case 'unavailable':
+                schedule.type = '보결불가';
+                schedule.classes = [];
+                break;
+        }
+
+        // 셀 업데이트
+        this.updateSpecialistScheduleCell(cell, schedule, '');
+        
+        // 전담수업 선택 시 입력 필드에 자동 포커스
+        if (action === 'teaching') {
+            setTimeout(() => {
+                const input = cell.querySelector('.class-input');
+                if (input) {
+                    input.focus();
+                    input.select(); // 기존 텍스트가 있다면 선택
+                }
+            }, 100);
+        }
+        
+        // 시각적 피드백
+        cell.classList.add('selected');
+        setTimeout(() => {
+            cell.classList.remove('selected');
+        }, 200);
+        
+        // 교과전담교사 스케줄 변경 시 담임교사 보결 가능 시간 자동 업데이트
+        this.updateClassTeacherAvailability();
     }
 }
 

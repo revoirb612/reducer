@@ -90,7 +90,7 @@ class StatisticsManager {
         timeSlots.forEach((timeSlot, index) => {
             const option = document.createElement('option');
             option.value = timeSlot;
-            option.textContent = `${index + 1}교시 (${timeSlot})`;
+            option.textContent = timeSlot;
             timeSelect.appendChild(option);
         });
     }
@@ -185,26 +185,25 @@ class StatisticsManager {
         
         console.log('검색 조건:', { day, time });
         
-        // 1. 담임교사 중에서 보결 가능한 교사 찾기
         const homeroomTeachers = teachers.filter(teacher => teacher.type === '담임교사');
-        console.log('담임교사 목록:', homeroomTeachers.map(t => t.name));
+        const specialistTeachers = teachers.filter(teacher => teacher.type === '교과전담교사');
         
-        homeroomTeachers.forEach(teacher => {
-            const schedule = teacher.schedule?.[day]?.[time];
-            console.log(`${teacher.name}의 ${day} ${time} 스케줄:`, schedule);
-            if (schedule && schedule.available) {
-                availableTeachers.push(teacher);
-                console.log(`${teacher.name} 추가됨 (담임교사 보결 가능)`);
+        console.log('교과전담교사 목록:', specialistTeachers.map(t => t.name));
+        
+        // 1. 교과전담교사 중 보결가능한 교사 찾기 (전담수업 중이 아닌 경우만)
+        specialistTeachers.forEach(specialist => {
+            const specialistSchedule = specialist.schedule?.[day]?.[time];
+            console.log(`${specialist.name}의 ${day} ${time} 스케줄:`, specialistSchedule);
+            
+            if (specialistSchedule && specialistSchedule.available && specialistSchedule.type !== '전담수업') {
+                availableTeachers.push(specialist);
+                console.log(`${specialist.name} 추가됨 (교과전담교사 보결 가능)`);
             }
         });
         
         // 2. 교과전담교사가 전담수업을 하는 학급의 담임교사 찾기
-        const specialistTeachers = teachers.filter(teacher => teacher.type === '교과전담교사');
-        console.log('교과전담교사 목록:', specialistTeachers.map(t => t.name));
-        
         specialistTeachers.forEach(specialist => {
             const specialistSchedule = specialist.schedule?.[day]?.[time];
-            console.log(`${specialist.name}의 ${day} ${time} 스케줄:`, specialistSchedule);
             
             if (specialistSchedule && specialistSchedule.type === '전담수업') {
                 console.log(`${specialist.name}가 전담수업 중 - 학급:`, specialistSchedule.classes);
@@ -544,7 +543,7 @@ class StatisticsManager {
             timeSlots.forEach((timeSlot, index) => {
                 const option = document.createElement('option');
                 option.value = timeSlot;
-                option.textContent = `${index + 1}교시 (${timeSlot})`;
+                option.textContent = timeSlot;
                 timeSelect.appendChild(option);
             });
         }
