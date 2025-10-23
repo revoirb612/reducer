@@ -12,6 +12,8 @@ class StatisticsManager {
         this.loadSubstituteRecords();
         this.loadStatistics();
         this.setupDateInputs();
+        // 동적 옵션 업데이트
+        this.updateDynamicOptions();
     }
 
     bindEvents() {
@@ -67,6 +69,11 @@ class StatisticsManager {
         
         // 시간대 옵션 동적 생성
         this.loadTimeSlotOptions();
+    }
+
+    // 동적 옵션 업데이트
+    updateDynamicOptions() {
+        Utils.updateSubstituteFormOptions();
     }
 
     loadTimeSlotOptions() {
@@ -281,8 +288,8 @@ class StatisticsManager {
                             <div class="stat-value">${teacher.substituteHistory.thisMonth}회</div>
                         </div>
                         <div class="stat-item">
-                            <div class="stat-label">지난 달</div>
-                            <div class="stat-value">${teacher.substituteHistory.lastMonth}회</div>
+                            <div class="stat-label">이번 주</div>
+                            <div class="stat-value">${teacher.substituteHistory.thisWeek}회</div>
                         </div>
                     </div>
                     <div class="teacher-card-actions">
@@ -586,10 +593,6 @@ class StatisticsManager {
         this.renderSubstituteRecords(records);
     }
 
-    deleteRecord(recordId) {
-        // 보결 기록 삭제 로직 (dataManager에 구현 필요)
-        Utils.showNotification('보결 기록 삭제 기능은 추후 구현됩니다.', 'info');
-    }
 
     loadStatistics() {
         this.loadOverviewStats();
@@ -653,8 +656,8 @@ class StatisticsManager {
                         <div class="teacher-stat-stat-value">${teacher.substituteHistory.thisMonth}회</div>
                     </div>
                     <div class="teacher-stat-stat">
-                        <div class="teacher-stat-stat-label">지난 달</div>
-                        <div class="teacher-stat-stat-value">${teacher.substituteHistory.lastMonth}회</div>
+                        <div class="teacher-stat-stat-label">이번 주</div>
+                        <div class="teacher-stat-stat-value">${teacher.substituteHistory.thisWeek}회</div>
                     </div>
                 </div>
             </div>

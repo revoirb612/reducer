@@ -40,7 +40,7 @@ class DataManager {
             substituteHistory: {
                 totalCount: 0,
                 thisMonth: 0,
-                lastMonth: 0,
+                thisWeek: 0,
                 records: []
             },
             createdAt: new Date().toISOString(),
@@ -131,6 +131,24 @@ class DataManager {
         return 'T' + Date.now().toString(36) + Math.random().toString(36).substr(2);
     }
 
+    // 이번 주인지 확인
+    isThisWeek(dateString) {
+        const recordDate = new Date(dateString);
+        const now = new Date();
+        
+        // 이번 주의 시작일 (월요일) 계산
+        const startOfWeek = new Date(now);
+        startOfWeek.setDate(now.getDate() - now.getDay() + 1); // 월요일로 설정
+        startOfWeek.setHours(0, 0, 0, 0);
+        
+        // 이번 주의 끝일 (일요일) 계산
+        const endOfWeek = new Date(startOfWeek);
+        endOfWeek.setDate(startOfWeek.getDate() + 6);
+        endOfWeek.setHours(23, 59, 59, 999);
+        
+        return recordDate >= startOfWeek && recordDate <= endOfWeek;
+    }
+
     // 보결 기록 추가
     addSubstituteRecord(record) {
         const substituteRecord = {
@@ -150,6 +168,12 @@ class DataManager {
         if (teacher) {
             teacher.substituteHistory.totalCount++;
             teacher.substituteHistory.thisMonth++;
+            
+            // 이번 주 통계 업데이트
+            if (this.isThisWeek(record.date)) {
+                teacher.substituteHistory.thisWeek++;
+            }
+            
             teacher.substituteHistory.records.push({
                 date: record.date,
                 time: record.time,
@@ -176,6 +200,11 @@ class DataManager {
         if (teacher) {
             teacher.substituteHistory.totalCount = Math.max(0, teacher.substituteHistory.totalCount - 1);
             teacher.substituteHistory.thisMonth = Math.max(0, teacher.substituteHistory.thisMonth - 1);
+            
+            // 이번 주 통계 업데이트
+            if (this.isThisWeek(record.date)) {
+                teacher.substituteHistory.thisWeek = Math.max(0, teacher.substituteHistory.thisWeek - 1);
+            }
             
             // 해당 기록을 교사 기록에서도 제거
             teacher.substituteHistory.records = teacher.substituteHistory.records.filter(r => 
@@ -204,6 +233,11 @@ class DataManager {
             oldTeacher.substituteHistory.totalCount = Math.max(0, oldTeacher.substituteHistory.totalCount - 1);
             oldTeacher.substituteHistory.thisMonth = Math.max(0, oldTeacher.substituteHistory.thisMonth - 1);
             
+            // 이번 주 통계 업데이트
+            if (this.isThisWeek(oldRecord.date)) {
+                oldTeacher.substituteHistory.thisWeek = Math.max(0, oldTeacher.substituteHistory.thisWeek - 1);
+            }
+            
             oldTeacher.substituteHistory.records = oldTeacher.substituteHistory.records.filter(r => 
                 !(r.date === oldRecord.date && r.time === oldRecord.time && r.class === oldRecord.class)
             );
@@ -214,6 +248,12 @@ class DataManager {
         if (newTeacher) {
             newTeacher.substituteHistory.totalCount++;
             newTeacher.substituteHistory.thisMonth++;
+            
+            // 이번 주 통계 업데이트
+            if (this.isThisWeek(updatedData.date)) {
+                newTeacher.substituteHistory.thisWeek++;
+            }
+            
             newTeacher.substituteHistory.records.push({
                 date: updatedData.date,
                 time: updatedData.time,
@@ -616,6 +656,34 @@ class DataManager {
             if (migratedCount > 0) {
                 localStorage.setItem(migrationKey, 'true');
                 console.log(`데이터 마이그레이션 완료: ${migratedCount}명의 담임교사 스케줄 업데이트`);
+            }
+        }
+        
+        // lastMonth를 thisWeek로 마이그레이션
+        this.migrateLastMonthToThisWeek();
+    }
+
+    // lastMonth를 thisWeek로 마이그레이션
+    migrateLastMonthToThisWeek() {
+        const migrationKey = 'lastmonth_to_thisweek_migration';
+        const hasMigrated = localStorage.getItem(migrationKey);
+        
+        if (!hasMigrated) {
+            let migratedCount = 0;
+            
+            this.teachers.forEach(teacher => {
+                if (teacher.substituteHistory && 'lastMonth' in teacher.substituteHistory) {
+                    // lastMonth 필드를 thisWeek로 변경
+                    teacher.substituteHistory.thisWeek = teacher.substituteHistory.lastMonth || 0;
+                    delete teacher.substituteHistory.lastMonth;
+                    migratedCount++;
+                }
+            });
+            
+            if (migratedCount > 0) {
+                this.saveTeachers();
+                localStorage.setItem(migrationKey, 'true');
+                console.log(`데이터 마이그레이션 완료: ${migratedCount}명의 교사 통계를 이번 주 기준으로 업데이트`);
             }
         }
     }

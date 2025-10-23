@@ -13,6 +13,9 @@ class App {
         
         // 데이터 마이그레이션 실행
         dataManager.runDataMigration();
+        
+        // 동적 옵션 생성
+        this.updateDynamicOptions();
     }
 
     bindEvents() {
@@ -236,6 +239,8 @@ class App {
                     Utils.showNotification('교사 정보가 수정되었습니다.', 'success');
                     this.hideTeacherForm();
                     this.loadTeachers();
+                    // 동적 옵션 업데이트
+                    this.updateDynamicOptions();
                 } else {
                     Utils.showNotification('교사 정보 수정에 실패했습니다.', 'error');
                 }
@@ -245,6 +250,8 @@ class App {
                 Utils.showNotification('교사가 추가되었습니다.', 'success');
                 this.hideTeacherForm();
                 this.loadTeachers();
+                // 동적 옵션 업데이트
+                this.updateDynamicOptions();
             }
         } catch (error) {
             console.error('Error handling teacher submit:', error);
@@ -311,6 +318,12 @@ class App {
     loadTeachers() {
         const teachers = dataManager.getAllTeachers();
         this.renderTeachersTable(teachers);
+    }
+
+    // 동적 옵션 업데이트
+    updateDynamicOptions() {
+        Utils.updateTeacherFormOptions();
+        Utils.updateSubstituteFormOptions();
     }
 
     renderTeachersTable(teachers) {

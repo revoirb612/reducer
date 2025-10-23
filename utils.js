@@ -316,6 +316,75 @@ class Utils {
             document.body.removeChild(link);
         }
     }
+
+    // 기존 교사 데이터 기반 학년 옵션 생성
+    static generateGradeOptions() {
+        const teachers = dataManager.getAllTeachers();
+        const existingGrades = [...new Set(teachers
+            .filter(t => t.type === '담임교사' && t.grade)
+            .map(t => t.grade)
+        )];
+        
+        // 학년 순서대로 정렬 (1학년, 2학년, ...)
+        return existingGrades.sort((a, b) => {
+            const aNum = parseInt(a.replace('학년', ''));
+            const bNum = parseInt(b.replace('학년', ''));
+            return aNum - bNum;
+        });
+    }
+
+    // 기존 교사 데이터 기반 반 옵션 생성
+    static generateClassOptions() {
+        const teachers = dataManager.getAllTeachers();
+        const existingClasses = [...new Set(teachers
+            .filter(t => t.type === '담임교사' && t.class)
+            .map(t => t.class)
+        )];
+        
+        // 반 순서대로 정렬 (1반, 2반, ...)
+        return existingClasses.sort((a, b) => {
+            const aNum = parseInt(a.replace('반', ''));
+            const bNum = parseInt(b.replace('반', ''));
+            return aNum - bNum;
+        });
+    }
+
+    // select 요소에 옵션 동적 생성
+    static populateSelectOptions(selectId, options, placeholder = '선택하세요') {
+        const select = document.getElementById(selectId);
+        if (!select) return;
+
+        // 기존 옵션 제거 (첫 번째 옵션 제외)
+        while (select.children.length > 1) {
+            select.removeChild(select.lastChild);
+        }
+
+        // 새 옵션 추가
+        options.forEach(option => {
+            const optionElement = document.createElement('option');
+            optionElement.value = option;
+            optionElement.textContent = option;
+            select.appendChild(optionElement);
+        });
+    }
+
+    // 교사 등록 폼의 학년/반 옵션 업데이트
+    static updateTeacherFormOptions() {
+        const grades = this.generateGradeOptions();
+        const classes = this.generateClassOptions();
+        
+        this.populateSelectOptions('teacher-grade', grades, '선택하세요');
+        this.populateSelectOptions('teacher-class', classes, '선택하세요');
+    }
+
+    // 보결 요청 폼의 학년/반 옵션 업데이트
+    static updateSubstituteFormOptions() {
+        const grades = this.generateGradeOptions();
+        const classes = this.generateClassOptions();
+        
+        this.populateSelectOptions('request-grade', grades, '학년 선택');
+        this.populateSelectOptions('request-class', classes, '반 선택');
+    }
 }
 
 // CSS 애니메이션 추가
